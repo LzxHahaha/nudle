@@ -1,0 +1,24 @@
+.button {
+    background-color: #3B85F7;
+    color: white;
+    height: 28px;
+    line-height: 28px;
+    padding: 0 10px;
+    font-size: 14px;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    font-family: 'Microsoft YaHei UI Light',sans-serif;
+}
+
+.button:visited {
+
+}
+
+.button:hover {
+    background-color: #3071A9;
+}
+
+.button:active {
+    background-color: #405677;
+}

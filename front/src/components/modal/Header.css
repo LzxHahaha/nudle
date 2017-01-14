@@ -1,0 +1,30 @@
+.container {
+    position: relative;
+    margin: -15px -15px 10px;
+}
+
+.content {
+    padding: 10px 15px 15px;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.header {
+    margin: 0;
+}
+
+.closeButton {
+    position: absolute;
+    color: gray;
+    top: 12px;
+    right: 15px;
+    width: 16px;
+    line-height: 16px;
+    text-align: center;
+    cursor: pointer;
+    transform: rotate(0deg);
+    transition: 0.5s;
+}
+
+.closeButton:hover {
+    transform: rotate(180deg);
+}
