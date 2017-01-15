@@ -37,5 +37,5 @@ def search(image, library):
 
     # 将图片的 Histogram 与数据库里的相乘
     score = np.dot(image_feature.T, lib_features.T)
-    sort = np.argsort(score)
+    sort = np.argsort(-score)
     return sort[0][0], image_names
