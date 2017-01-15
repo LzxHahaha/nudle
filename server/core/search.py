@@ -9,7 +9,7 @@ from utils.mongo import get_db
 # DICTIONARIES = {}
 
 
-def search(image, library):
+def search(image, library, save=False):
     # 准备数据库
     db = get_db()
     dictionaries = db.dictionaries
@@ -36,10 +36,15 @@ def search(image, library):
     lib_features = np.array(lib_features)
 
     # 将图片的 Histogram 与数据库里的相乘
-    score = np.dot(image_feature.T, lib_features.T)
-    sort = (np.argsort(-score)).T
-    result = []
-    for i in sort:
-        result.append(image_names[i])
+    score = (np.dot(image_feature.T, lib_features.T))[0][0]
+    sort = np.argsort(-score)
+    result = [image_names[i] for i in sort]
 
-    return result
+    # 如果要保存输入的话，先判断一下是否重复
+    if save:
+        input_score = (np.dot(image_feature.T, image_feature))[0][0]
+        first_score = score[sort[0]]
+        if input_score != first_score:
+            save = False
+
+    return result, save

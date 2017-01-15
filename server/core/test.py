@@ -11,7 +11,7 @@ cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
 cv2.resizeWindow(window_name, 300, 300)
 cv2.imshow(window_name, image)
 start = time.time()
-images = search(image, 'voc2006')
+images, save = search(image, 'voc2006')
 print 'Search Done. %fs.' % (time.time() - start)
 for i in range(16):
     path = 'D:/Works/Code/image-retrieval/server/prepare/voc2006/' + images[i]

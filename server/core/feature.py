@@ -21,6 +21,7 @@ def get_feature(img, dictionary, lbp_weight = 1):
     lbp_image = local_binary_pattern(gray_image, 8 * 3, 3)
     lbp_image = np.float32(lbp_image)
     hist_v = cv2.calcHist([lbp_image], [0], None, [256], [0, 256])
+    # LBP 权重
     if lbp_weight > 1:
         hist_v *= lbp_weight
 

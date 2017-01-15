@@ -1,8 +1,5 @@
 from flask import Flask
 from flask import jsonify
-import cv2
-
-from core.sift import sift, __core
 
 app = Flask(__name__)
 
