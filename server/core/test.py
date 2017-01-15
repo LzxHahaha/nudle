@@ -4,7 +4,7 @@ import time
 
 from core.search import search
 
-path = 'D:/Works/Code/image-retrieval/server/prepare/voc2006/000013.png'
+path = 'D:/Works/Code/image-retrieval/server/static/voc2006/000013.png'
 image = cv2.imread(path)
 window_name = 'origin'
 cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
@@ -14,7 +14,7 @@ start = time.time()
 images, save = search(image, 'voc2006')
 print 'Search Done. %fs.' % (time.time() - start)
 for i in range(16):
-    path = 'D:/Works/Code/image-retrieval/server/prepare/voc2006/' + images[i]
+    path = 'D:/Works/Code/image-retrieval/server/static/voc2006/' + images[i]
     img = cv2.imread(path)
     window_name = '%d' % i
     cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
