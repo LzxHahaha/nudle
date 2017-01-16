@@ -97,20 +97,9 @@
     margin: 5px;
     padding: 5px;
     text-align: center;
-    transition: 0.5s;
-}
-
-.imagePreviewBox:hover {
-    padding: 0;
 }
 
 .imagePreview {
     max-width: 195px;
     max-height: 195px;
-    transition: 0.5s;
-}
-
-.imagePreview:hover {
-    max-width: 200px;
-    max-height: 200px;
 }

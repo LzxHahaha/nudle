@@ -15,17 +15,18 @@ export default class Home extends React.Component {
       modalVisible: false,
       searching: false,
       searchText: '',
+      image: '',
       display: []
     };
 
     this.list = [];
+    this.imageReader = new FileReader();
+    this.imageReader.onload =  e => this.setState({ sourceImage: e.target.result });
   }
 
   async searchUrl() {
+    this.setState({ sourceImage: this.state.searchText });
     const res = await fetch('http://localhost:5000/api/search/url', {
-      headers: {
-        'Content-Type': 'application/javascript'
-      },
       method: 'POST',
       body: JSON.stringify({url: this.state.searchText})
     });
@@ -35,7 +36,16 @@ export default class Home extends React.Component {
   }
 
   async searchUpload() {
+    const formData = new FormData();
+    formData.append('image', this.state.image);
 
+    const res = await fetch('http://localhost:5000/api/search/upload', {
+      method: 'POST',
+      body: formData
+    });
+    const text = await res.text();
+    const json = JSON.parse(text);
+    return json.result;
   }
 
   onSearchTextChange = (e) => {
@@ -43,25 +53,35 @@ export default class Home extends React.Component {
   };
 
   onImageChange = (e) => {
-    console.log({...e.target});
+    const image = e.target.files[0];
+    this.setState({ image });
+    this.imageReader.readAsDataURL(image);
   };
 
   onSearchPress = async (isUrl) => {
     this.setState({searching: true, display: []});
     let list = null;
     let display = null;
-    if (isUrl) {
-      list = await this.searchUrl();
-    }
-    else {
-      list = await this.searchUpload();
-    }
+    try {
+      if (isUrl) {
+        list = await this.searchUrl();
+      }
+      else {
+        list = await this.searchUpload();
+      }
 
-    if (list) {
-      this.list = list;
-      display = list.splice(0, 20);
+      if (list) {
+        this.list = list;
+        display = list.splice(0, 20);
+      }
+      this.setState({ display });
     }
-    this.setState({searching: false, display});
+    catch (err) {
+      alert(err.message);
+    }
+    finally {
+      this.setState({ searching: false });
+    }
   };
 
   render() {
@@ -97,6 +117,8 @@ export default class Home extends React.Component {
           )
         }
 
+        <img src={this.state.sourceImage} />
+
         {
           display.length > 0 && (
             display.map(el => {
@@ -116,13 +138,19 @@ export default class Home extends React.Component {
           <Modal.Header>
             上传图片进行搜索
           </Modal.Header>
-          <input type="file" accept=".png, .jpg, .jpeg" onChange={this.onImageChange} />
+          <input
+            type="file"
+            accept=".png, .jpg, .jpeg"
+            onChange={this.onImageChange}
+          />
           <Modal.Footer>
             <Button onClick={()=>this.onSearchPress(false)} dismiss={true}>
               确定
             </Button>
           </Modal.Footer>
         </Modal>
+
+
       </div>
     );
   }
