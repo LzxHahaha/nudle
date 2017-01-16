@@ -23,6 +23,7 @@ def upload_search():
     library = request.args.get('library', 'voc2006')
     image_file = request.files.get('image', None)
     image = numpy.asarray(Image.open(image_file.stream))
+    image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
     result, save = search(image, library)
     if save:
         pass
