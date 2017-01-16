@@ -1,12 +1,16 @@
+import json
+
+import cv2
+from flask import Flask, jsonify, request
+from flask_cors import CORS
 import numpy
 from PIL import Image
-from flask import Flask, jsonify, request
 from skimage import io
-import base64
 
 from core.search import search
 
 app = Flask(__name__)
+CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 
 @app.route('/')
@@ -27,9 +31,11 @@ def upload_search():
 
 @app.route('/api/search/url', methods=['POST'])
 def url_search():
-    library = request.args.get('library', 'voc2006')
-    url = request.form.get('url', None)
+    params = json.loads(request.data)
+    library = 'voc2006'
+    url = params['url']
     image = io.imread(url)
+    image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
     result, save = search(image, library)
     if save:
         pass
