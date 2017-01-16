@@ -7,6 +7,8 @@ var webpack = require('webpack');
 
 module.exports = {
   entry: [
+    'babel-polyfill',
+    'whatwg-fetch',
     './index.js'
   ],
   output: {

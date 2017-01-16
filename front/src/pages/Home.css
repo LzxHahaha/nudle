@@ -6,6 +6,31 @@
 .logo {
     margin-top: 15%;
     text-align: center;
+    transition: 1s;
+}
+
+@media screen and (min-width: 768px) and (max-width: 992px) {
+    .logo {
+        margin-top: 20%;
+    }
+
+    .searchBox {
+        width: 50%;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .logo {
+        margin-top: 30%;
+    }
+
+    .searchBox {
+        width: 90%;
+    }
+}
+
+.logoFold {
+    margin-top: 30px;
 }
 
 .searchBox {
@@ -60,22 +85,32 @@
     line-height: 38px !important;
 }
 
-@media screen and (max-width: 768px) {
-    .logo {
-        margin-top: 30%;
-    }
-
-    .searchBox {
-        width: 90%;
-    }
+.searchingText {
+    text-align: center;
+    font-size: 18px;
 }
 
-@media screen and (max-width: 992px) {
-    .logo {
-        margin-top: 20%;
-    }
+.imagePreviewBox {
+    display: inline-block;
+    width: 200px;
+    height: 200px;
+    margin: 5px;
+    padding: 5px;
+    text-align: center;
+    transition: 0.5s;
+}
 
-    .searchBox {
-        width: 50%;
-    }
+.imagePreviewBox:hover {
+    padding: 0;
+}
+
+.imagePreview {
+    max-width: 195px;
+    max-height: 195px;
+    transition: 0.5s;
+}
+
+.imagePreview:hover {
+    max-width: 200px;
+    max-height: 200px;
 }

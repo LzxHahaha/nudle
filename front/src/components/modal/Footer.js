@@ -26,7 +26,6 @@ export default class Footer extends React.Component {
               return el;
             }
             const dismiss = el.props.dismiss;
-            delete el.props.dismiss;
 
             if (!dismiss || !el.props.onClick) {
               return el;
@@ -37,7 +36,7 @@ export default class Footer extends React.Component {
                 el.props.onClick();
                 this.context.hide();
               }
-            })
+            });
           })
         }
       </div>
