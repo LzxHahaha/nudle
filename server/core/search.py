@@ -24,7 +24,7 @@ def search(image, library, save=False):
     # TODO: split image
 
     hist, features = get_feature(image, voc)
-    image_feature = np.vstack((hist, features))
+    input_feature = np.vstack((hist, features))
 
     # 找出
     lib_images = images.find({})
@@ -36,15 +36,29 @@ def search(image, library, save=False):
     lib_features = np.array(lib_features)
 
     # 将图片的 Histogram 与数据库里的相乘
-    score = (np.dot(image_feature.T, lib_features.T))[0][0]
+    score = (np.dot(input_feature.T, lib_features.T))[0][0]
     sort = np.argsort(-score)
     result = [image_names[i] for i in sort]
 
-    # 如果要保存输入的话，先判断一下是否重复
+    # # 如果要保存输入的话，先判断一下是否重复
     if save:
-        input_score = (np.dot(image_feature.T, image_feature))[0][0]
+        input_score = (np.dot(input_feature.T, input_feature))[0][0]
         first_score = score[sort[0]]
         if input_score != first_score:
             save = False
+
+    # 计算距离并排序
+    # TODO: 优化这段，替换掉上面的
+    # lib_images = images.find({})
+    # image_count = images.count()
+    # distances = np.zeros(image_count)
+    # images_names = []
+    # for i in range(image_count):
+    #     feature = np.append(lib_images[i]['hist'], lib_images[i]['feature'], axis=0)
+    #     distances[i] = np.linalg.norm(input_feature - feature)
+    #     images_names.append(lib_images[i]['name'])
+    #
+    # sort = np.argsort(distances)
+    # result = [images_names[i] for i in sort]
 
     return result, save
