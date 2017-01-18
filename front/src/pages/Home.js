@@ -7,6 +7,8 @@ import styles from './Home.css';
 import Modal from '../components/modal';
 import Button from '../components/Button';
 
+import Request from '../utils/Request';
+
 export default class Home extends React.Component {
   constructor(props) {
     super(props);
@@ -15,37 +17,29 @@ export default class Home extends React.Component {
       modalVisible: false,
       searching: false,
       searchText: '',
-      image: '',
-      display: []
+      sourceImage: '',
+      display: [],
+      feature: []
     };
 
     this.list = [];
+    this.selectedImage = '';
     this.imageReader = new FileReader();
-    this.imageReader.onload =  e => this.setState({ sourceImage: e.target.result });
+    this.imageReader.onload =  e => this.selectedImage = e.target.result;
   }
 
   async searchUrl() {
-    this.setState({ sourceImage: this.state.searchText });
-    const res = await fetch('http://localhost:5000/api/search/url', {
-      method: 'POST',
-      body: JSON.stringify({url: this.state.searchText})
+    const res = await Request.post(Request.URLs.searchUrl, {
+      url: this.state.searchText
     });
-    const text = await res.text();
-    const json = JSON.parse(text);
-    return json.result;
+    return res;
   }
 
   async searchUpload() {
-    const formData = new FormData();
-    formData.append('image', this.state.image);
-
-    const res = await fetch('http://localhost:5000/api/search/upload', {
-      method: 'POST',
-      body: formData
+    const res = await Request.post(Request.URLs.searchUpload, {
+      image: this.selectedImage
     });
-    const text = await res.text();
-    const json = JSON.parse(text);
-    return json.result;
+    return res;
   }
 
   onSearchTextChange = (e) => {
@@ -60,21 +54,22 @@ export default class Home extends React.Component {
 
   onSearchPress = async (isUrl) => {
     this.setState({searching: true, display: []});
-    let list = null;
+    let result = null;
     let display = null;
     try {
       if (isUrl) {
-        list = await this.searchUrl();
+        this.setState({ sourceImage: this.state.searchText });
+        result = await this.searchUrl();
       }
       else {
-        list = await this.searchUpload();
+        this.setState({ sourceImage: this.selectedImage });
+        result = await this.searchUpload();
       }
 
-      if (list) {
-        this.list = list;
-        display = list.splice(0, 20);
-      }
-      this.setState({ display });
+      this.list = result.list;
+      display = this.list.splice(0, 20);
+      await this.setState({ display, feature: result.feature });
+      this.renderHistogram(result.feature);
     }
     catch (err) {
       alert(err.message);
@@ -84,8 +79,40 @@ export default class Home extends React.Component {
     }
   };
 
+  renderHistogram(feature) {
+    const ctx = this.histogram.getContext('2d');
+    const { height } = this.histogram;
+
+    ctx.clearRect(0, 0, feature.length * 3, height);
+    ctx.save();
+    ctx.fillStyle="#ff0000";
+
+    const max = Math.max(...feature);
+    const step = height / max;
+
+    // TODO: 区分开HSV和feature，以及前景背景
+    for (let i = 0; i < feature.length; ++i) {
+      if (i == 63) {
+        ctx.fillStyle="#00ff00";
+      }
+      else if (i == 79) {
+        ctx.fillStyle="#0000ff";
+      }
+      else if (i == 335) {
+        ctx.fillStyle="#f0f";
+      }
+
+      const h = feature[i] * step;
+      ctx.translate(0, height - h - 1);
+      ctx.fillRect(0, 0, 3, h + 1);
+      ctx.translate(3, h - height + 1);
+    }
+
+    ctx.restore();
+  }
+
   render() {
-    const { searching, display, searchText } = this.state;
+    const { searching, display, searchText, sourceImage, feature } = this.state;
 
     return (
       <div className={styles.container}>
@@ -109,30 +136,44 @@ export default class Home extends React.Component {
           </Button>
         </div>
 
-        {
-          searching && (
-            <p className={styles.searchingText}>
-              搜索中...
-            </p>
-          )
-        }
-
-        <img src={this.state.sourceImage} />
-
-        {
-          display.length > 0 && (
-            display.map(el => {
-              return (
-                <div className={styles.imagePreviewBox}>
-                  <img
-                    src={`http://localhost:5000/static/voc2006/${el}`}
-                    className={styles.imagePreview}
-                  />
+        <div className={styles.row}>
+          {
+            sourceImage && (
+              <div className={styles.inputImageView}>
+                <img src={sourceImage} className={styles.inputImage} />
+                <div className={styles.inputHistogram}>
+                  <h3>图片信息直方图</h3>
+                  <canvas ref={ref=>this.histogram=ref} height="150" width={feature.length * 3}>
+                    加载中...
+                  </canvas>
                 </div>
-              );
-            })
-          )
-        }
+              </div>
+            )
+          }
+
+          {
+            searching && (
+              <p className={styles.searchingText}>
+                搜索中...
+              </p>
+            )
+          }
+
+          {
+            display.length > 0 && (
+              display.map(el => {
+                return (
+                  <div className={styles.imagePreviewBox}>
+                    <img
+                      src={`http://localhost:5000/static/voc2006/${el}`}
+                      className={styles.imagePreview}
+                    />
+                  </div>
+                );
+              })
+            )
+          }
+        </div>
 
         <Modal ref={ref=>this.modal=ref}>
           <Modal.Header>
@@ -149,8 +190,6 @@ export default class Home extends React.Component {
             </Button>
           </Modal.Footer>
         </Modal>
-
-
       </div>
     );
   }

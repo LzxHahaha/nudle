@@ -90,16 +90,47 @@
     font-size: 18px;
 }
 
+.row {
+    max-width: 992px;
+    margin: 0 auto;
+}
+
+@media screen and (min-width: 768px) and (max-width: 992px) {
+    .row {
+        max-width: 768px;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .row {
+        max-width: 700px;
+    }
+}
+
+.inputImageView {
+    display: flex;
+    flex-direction: row;
+}
+
+.inputImage {
+    height: 250px;
+}
+
+.inputHistogram {
+    flex: 1;
+    background-color: #E5E5E5;
+    padding: 5px 15px;
+    overflow-x: scroll;
+}
+
 .imagePreviewBox {
     display: inline-block;
-    width: 200px;
+    width: 25%;
     height: 200px;
-    margin: 5px;
-    padding: 5px;
+    padding: 5px 0;
     text-align: center;
 }
 
 .imagePreview {
-    max-width: 195px;
-    max-height: 195px;
+    width: 100%;
 }
