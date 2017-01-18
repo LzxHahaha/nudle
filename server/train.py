@@ -12,8 +12,7 @@ from core.sift import sift
 
 # 配置脚本参数
 parser = argparse.ArgumentParser()
-parser.add_argument('-l', action='store', dest='library', help='Image library\'s name.')
-parser.add_argument('--library', action='store', dest='library', help='Image library\'s name.')
+parser.add_argument('-l, --lib', action='store', dest='library', help='Image library\'s name.')
 # 读取参数
 params = parser.parse_args()
 lib = params.library
@@ -23,18 +22,18 @@ db = mongo.get_db()
 dictionaries = db.dictionaries
 old_lib = dictionaries.find_one({'library': lib})
 if old_lib is not None:
-    confirm = raw_input('Already have dictionary for library [%s], sure you want to overwrite it? [y/n]: ' % lib)
-    # 只在输入 y 或者 Y 的时候继续，其他情况都终止
-    if confirm.lower() == 'y':
-        pass
-    else:
-        sys.exit()
+    while 1:
+        confirm = raw_input('Already have dictionary for library [%s], sure you want to overwrite it? [y/n]: ' % lib)
+        if confirm.lower() == 'y':
+            break
+        elif confirm.lower() == 'n':
+            sys.exit()
 
 # 取 1/8 的图片生成做训练
 print 'Start get SIFT feature from images...'
 image_paths = glob.glob('./%s/*' % lib)
 path_count = len(image_paths)
-train_count = path_count // 7
+train_count = path_count // 8
 key_points, desc = sift(image_paths[0])
 descriptors = desc
 print '%d/%d' % (1, train_count),

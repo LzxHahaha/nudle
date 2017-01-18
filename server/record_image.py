@@ -9,8 +9,7 @@ from core.feature import get_feature
 
 # 配置参数
 parser = argparse.ArgumentParser()
-parser.add_argument('-l', action='store', dest='library')
-parser.add_argument('--library', action='store', dest='library')
+parser.add_argument('-l, --lib', action='store', dest='library')
 # 读取参数
 params = parser.parse_args()
 lib = params.library
