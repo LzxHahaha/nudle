@@ -73,6 +73,7 @@ export default class Home extends React.Component {
     }
     catch (err) {
       alert(err.message);
+      await this.setState({ sourceImage: '' });
     }
     finally {
       this.setState({ searching: false });
@@ -165,7 +166,7 @@ export default class Home extends React.Component {
                 return (
                   <div className={styles.imagePreviewBox}>
                     <img
-                      src={`http://localhost:5000/static/voc2006/${el}`}
+                      src={`http://localhost:5000/static/voc2006/${el.name}`}
                       className={styles.imagePreview}
                     />
                   </div>

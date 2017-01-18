@@ -1,5 +1,6 @@
 # coding=utf-8
 import numpy as np
+import scipy
 
 from core.feature import get_feature
 from utils.mongo import get_db
@@ -30,18 +31,18 @@ def search(image, library, save=False):
     input_feature = np.vstack((hist, features))
 
     # 计算距离并排序
-    # TODO: 优化
     lib_images = images.find({})
-    image_count = images.count()
-    distances = np.zeros(image_count)
     images_names = []
-    for i in range(image_count):
-        feature = np.append(lib_images[i]['hist'], lib_images[i]['feature'], axis=0)
-        distances[i] = np.linalg.norm(input_feature - feature)
-        images_names.append(lib_images[i]['name'])
+    features = []
+    for i in lib_images:
+        feature = np.append(i['hist'], i['feature'], axis=0)
+        features.append(feature)
+        images_names.append(i['name'])
+    features = np.array(features).T
+    distances = scipy.spatial.distance.cdist(features[0].T, input_feature.T)
 
-    sort = np.argsort(distances)
-    result = [images_names[i] for i in sort]
+    sort = np.argsort(distances.T)
+    result = [{'name': images_names[i], 'distance': distances[i][0]} for i in sort[0]]
 
     if save and distances[sort[0]] > 0:
         save_image(image)
