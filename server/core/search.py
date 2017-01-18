@@ -10,6 +10,9 @@ from utils.mongo import get_db
 
 
 def search(image, library, save=False):
+    if image is None:
+        raise Exception('Image can not be None.')
+
     # 准备数据库
     db = get_db()
     dictionaries = db.dictionaries
@@ -45,7 +48,7 @@ def search(image, library, save=False):
         input_score = (np.dot(input_feature.T, input_feature))[0][0]
         first_score = score[sort[0]]
         if input_score != first_score:
-            save = False
+            save_image(image)
 
     # 计算距离并排序
     # TODO: 优化这段，替换掉上面的
@@ -61,4 +64,9 @@ def search(image, library, save=False):
     # sort = np.argsort(distances)
     # result = [images_names[i] for i in sort]
 
-    return result, save
+    return result, input_feature.T.tolist()
+
+
+def save_image(image):
+    # TODO: 异步保存图片
+    pass
