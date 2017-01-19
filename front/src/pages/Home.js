@@ -9,6 +9,10 @@ import Button from '../components/Button';
 
 import Request from '../utils/Request';
 
+const LIBRARYS = [
+  {label: 'VOC 2006', value: 'voc2006'}
+];
+
 export default class Home extends React.Component {
   constructor(props) {
     super(props);
@@ -19,7 +23,8 @@ export default class Home extends React.Component {
       searchText: '',
       sourceImage: '',
       display: [],
-      feature: []
+      feature: [],
+      library: LIBRARYS[0].value
     };
 
     this.list = [];
@@ -30,17 +35,27 @@ export default class Home extends React.Component {
 
   async searchUrl() {
     const res = await Request.post(Request.URLs.searchUrl, {
-      url: this.state.searchText
+      url: this.state.searchText,
+      library: this.state.library
     });
     return res;
   }
 
   async searchUpload() {
     const res = await Request.post(Request.URLs.searchUpload, {
-      image: this.selectedImage
+      image: this.selectedImage,
+      library: this.state.library
     });
     return res;
   }
+
+  onLibraryChange = e => {
+    this.setState({ library: e.target.value });
+  };
+
+  onHistogramChange = e => {
+    this[`render${e.target.value}Histogram`]();
+  };
 
   onSearchTextChange = (e) => {
     this.setState({ searchText: e.target.value });
@@ -69,7 +84,7 @@ export default class Home extends React.Component {
       this.list = result.list;
       display = this.list.splice(0, 20);
       await this.setState({ display, feature: result.feature });
-      this.renderHistogram(result.feature);
+      this.renderAllHistogram(result.feature);
     }
     catch (err) {
       alert(err.message);
@@ -80,7 +95,7 @@ export default class Home extends React.Component {
     }
   };
 
-  renderHistogram(feature) {
+  renderAllHistogram(feature) {
     const ctx = this.histogram.getContext('2d');
     const { height } = this.histogram;
 
@@ -112,41 +127,81 @@ export default class Home extends React.Component {
     ctx.restore();
   }
 
+  renderHSHistogram(feature) {
+
+  }
+
+  renderLBPHistogram(feature) {
+
+  }
+
+  renderWordHistogram(feature) {
+
+  }
+
+  renderHistogram() {
+    // TODO: 封装画图函数
+  }
+
   render() {
     const { searching, display, searchText, sourceImage, feature } = this.state;
 
     return (
       <div className={styles.container}>
-        <div className={classNames(styles.logo, (searching || display.length > 0) && styles.logoFold)}>
-          <img src={require('../image/nudle.png')} height="80" />
-        </div>
-        <div className={styles.searchBox}>
-          <div className={styles.searchInputView}>
-            <input
-              className={styles.searchInput}
-              placeholder="输入图片URL"
-              onChange={this.onSearchTextChange}
-              value={searchText}
-            />
-          </div>
-          <a className={styles.imageButton} onClick={()=>this.modal.show()}>
-            <FontAwesome name="cloud-upload" />
-          </a>
-          <Button className={styles.searchButton} onClick={()=>this.onSearchPress(true)}>
-            搜索
-          </Button>
-        </div>
-
         <div className={styles.row}>
+          <div className={classNames(styles.logo, (searching || display.length > 0) && styles.logoFold)}>
+            <img src={require('../image/nudle.png')} height="80" />
+          </div>
+          <div className={styles.searchBox}>
+            <select onChange={this.onLibraryChange} className={styles.libraryBox}>
+              {
+                LIBRARYS.map(el => <option value={el.value}>{el.label}</option>)
+              }
+            </select>
+            <div className={styles.searchInputView}>
+              <input
+                className={styles.searchInput}
+                placeholder="输入图片URL"
+                onChange={this.onSearchTextChange}
+                value={searchText}
+              />
+            </div>
+            <a className={styles.imageButton} onClick={()=>this.modal.show()}>
+              <FontAwesome name="cloud-upload" />
+            </a>
+            <Button className={styles.searchButton} onClick={()=>this.onSearchPress(true)}>
+              搜索
+            </Button>
+          </div>
+
           {
             sourceImage && (
-              <div className={styles.inputImageView}>
-                <img src={sourceImage} className={styles.inputImage} />
-                <div className={styles.inputHistogram}>
-                  <h3>图片信息直方图</h3>
-                  <canvas ref={ref=>this.histogram=ref} height="150" width={feature.length * 3}>
-                    加载中...
-                  </canvas>
+              <div>
+                <h3>输入图片信息</h3>
+                <div className={styles.inputImageView}>
+                  <img src={sourceImage} className={styles.inputImage} />
+                  <div className={styles.inputHistogramBox}>
+                    {
+                      feature.length > 0 ? (
+                        <div>
+                          <div className={styles.histogramSelector}>
+                            直方图选择：
+                            <select onChange={this.onHistogramChange}>
+                              <option value="All">全部</option>
+                              <option value="HS">H+S Histogram</option>
+                              <option value="LBP">LBP Histogram</option>
+                              <option value="Word">Visual Words Histogram</option>
+                            </select>
+                          </div>
+                          <div className={styles.inputHistogram}>
+                            <canvas ref={ref => this.histogram = ref} height="190" width={feature.length * 3}>
+                              请更新浏览器版本
+                            </canvas>
+                          </div>
+                        </div>
+                      ) : <h3>生成中...</h3>
+                    }
+                  </div>
                 </div>
               </div>
             )
@@ -162,16 +217,21 @@ export default class Home extends React.Component {
 
           {
             display.length > 0 && (
-              display.map(el => {
-                return (
-                  <div className={styles.imagePreviewBox}>
-                    <img
-                      src={`http://localhost:5000/static/voc2006/${el.name}`}
-                      className={styles.imagePreview}
-                    />
-                  </div>
-                );
-              })
+              <div>
+                <h3>搜索结果</h3>
+                {
+                  display.map(el => {
+                    return (
+                      <div className={styles.imagePreviewBox}>
+                        <img
+                          src={`http://localhost:5000/static/voc2006/${el.name}`}
+                          className={styles.imagePreview}
+                        />
+                      </div>
+                    );
+                  })
+                }
+              </div>
             )
           }
         </div>
