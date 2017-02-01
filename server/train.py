@@ -5,6 +5,7 @@ import scipy.cluster.vq as vq
 import glob
 import time
 import sys
+import os
 from multiprocessing import Pool
 
 import utils.mongo as mongo
@@ -13,14 +14,14 @@ from core.sift import sift
 TRAIN_SEGMENT = 100
 
 
-def get_features(offset, end):
-    kp, result = sift(image_paths[offset])
-    print '\r%d/%d' % (offset + 1, train_count),
-    for i in range(offset + 1, end):
-        kp, d = sift(image_paths[i])
-        result = np.vstack((result, d))
-        print '\r%d/%d' % (i + 1, train_count),
-    return result
+def get_features(paths):
+    print '[%s]\tProcessing...' % os.getpid()
+    kp, res = sift(paths[0])
+    for i in paths[1:]:
+        kp, d = sift(i)
+        res = np.vstack((res, d))
+    print '[%s]\tProcess done.' % os.getpid()
+    return res
 
 if __name__ == '__main__':
     # 配置脚本参数
@@ -43,34 +44,42 @@ if __name__ == '__main__':
             elif confirm.lower() == 'n':
                 sys.exit()
 
-    # 取 1/8 的图片生成做训练
-    print 'Start get SIFT feature from images...'
-    start_time = time.time()
-    image_paths = glob.glob('./static/%s/*' % lib)
-    path_count = len(image_paths)
-    train_count = path_count // 8
-    offset = 1
-    key_points, descriptors = sift(image_paths[0])
-    print '%d/%d' % (1, train_count),
-    tmp = train_count
 
-    if tmp > TRAIN_SEGMENT:
-        res = get_features(offset, TRAIN_SEGMENT)
-        descriptors = np.vstack((descriptors, res))
-        tmp -= TRAIN_SEGMENT
-        offset += TRAIN_SEGMENT
-    res = get_features(offset, train_count)
-    descriptors = np.vstack((descriptors, res))
+    def main():
+        # 取 1/8 的图片生成做训练
+        print 'Start get SIFT feature from images...'
+        start_time = time.time()
+        image_paths = glob.glob('./static/%s/*' % lib)
+        path_count = len(image_paths)
+        train_count = path_count // 8
+        offset = 1
+        key_points, descriptors = sift(image_paths[0])
 
-    print '\nDone. Use %fs.' % (time.time() - start_time)
+        tmp = train_count
+        args = []
+        while tmp > TRAIN_SEGMENT:
+            args.append(image_paths[offset: offset + TRAIN_SEGMENT])
+            tmp -= TRAIN_SEGMENT
+            offset += TRAIN_SEGMENT
+        args.append(image_paths[offset: train_count])
+        pool = Pool()
+        result = pool.map(get_features, args)
+        pool.close()
+        pool.join()
+        for i in result:
+            descriptors = np.vstack((descriptors, i))
 
-    # k-means 聚合
-    print 'Start cluster...'
-    start_time = time.time()
-    cookbook, variance = vq.kmeans(descriptors, 100, 10)
-    print 'Done. Use %fs.\n' % (time.time() - start_time)
+        print '\nDone. Use %fs.\n' % (time.time() - start_time)
 
-    # 保存数据到数据库
-    print 'Save cookbook to database...\n'
-    dictionaries.update_one({'library': lib}, {'$set': {'dictionary': cookbook.tolist()}}, True)
-    print 'All done.'
+        # k-means 聚合
+        print 'Start cluster...'
+        start_time = time.time()
+        cookbook, variance = vq.kmeans(descriptors, 100, 10)
+        print 'Done. Use %fs.\n' % (time.time() - start_time)
+
+        # 保存数据到数据库
+        print 'Save cookbook to database...\n'
+        dictionaries.update_one({'library': lib}, {'$set': {'dictionary': cookbook.tolist()}}, True)
+        print 'All done.'
+
+    main()
