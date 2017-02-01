@@ -9,7 +9,7 @@ Jinja2==2.8
 MarkupSafe==0.23
 matplotlib==1.5.3
 networkx==1.11
-numpy==1.11.2
+numpy==1.12.0+mkl
 olefile==0.44
 Pillow==4.0.0
 pymongo==3.4.0
@@ -18,7 +18,7 @@ python-dateutil==2.6.0
 pytz==2016.10
 requests==2.10.0
 scikit-image==0.12.3
-scipy==0.16.1
+scipy==0.18.1
 six==1.10.0
 toolz==0.8.2
 Werkzeug==0.11.11
