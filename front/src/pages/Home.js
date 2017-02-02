@@ -31,22 +31,21 @@ export default class Home extends React.Component {
     this.selectedImage = '';
     this.imageReader = new FileReader();
     this.imageReader.onload =  e => this.selectedImage = e.target.result;
+    this.searchLibrary = '';
   }
 
   async searchUrl() {
-    const res = await Request.post(Request.URLs.searchUrl, {
+    return await Request.post(Request.URLs.searchUrl, {
       url: this.state.searchText,
       library: this.state.library
     });
-    return res;
   }
 
   async searchUpload() {
-    const res = await Request.post(Request.URLs.searchUpload, {
+    return await Request.post(Request.URLs.searchUpload, {
       image: this.selectedImage,
       library: this.state.library
     });
-    return res;
   }
 
   onLibraryChange = e => {
@@ -82,6 +81,7 @@ export default class Home extends React.Component {
       }
 
       this.list = result.list;
+      this.searchLibrary = this.state.library;
       display = this.list.splice(0, 20);
       await this.setState({ display, feature: result.feature });
       this.renderAllHistogram(result.feature);
@@ -144,7 +144,7 @@ export default class Home extends React.Component {
   }
 
   render() {
-    const { searching, display, searchText, sourceImage, feature } = this.state;
+    const { searching, display, searchText, sourceImage, feature, library } = this.state;
 
     return (
       <div className={styles.container}>
@@ -224,7 +224,7 @@ export default class Home extends React.Component {
                     return (
                       <div className={styles.imagePreviewBox}>
                         <img
-                          src={`http://localhost:5000/static/voc2006/${el.name}`}
+                          src={`http://localhost:5000/static/${this.searchLibrary}/${el.name}`}
                           className={styles.imagePreview}
                         />
                       </div>

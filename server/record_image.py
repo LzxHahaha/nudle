@@ -4,6 +4,7 @@ import os
 import time
 
 import utils.mongo as mongo
+from utils.format_print import datetime_print
 from core.feature import get_feature
 
 
@@ -24,7 +25,7 @@ voc = dictionary['dictionary']
 collection = 'images_' + lib
 images = db[collection]
 
-print 'Start get feature from images...'
+datetime_print('Start...')
 start = time.time()
 dir_path = '%s/static/%s' % (os.getcwd(), lib)
 
@@ -35,4 +36,5 @@ for path in os.walk(dir_path):
         print '\r%d/%d' % (i + 1, image_count),
         hist, features = get_feature('%s/%s' % (root, files[i]), voc)
         images.insert({'name': files[i], 'hist': hist.tolist(), 'feature': features.tolist()})
-print '\nDone. Use %fs.\n' % (time.time() - start)
+print '\n'
+datetime_print('Done. Use %fs.' % (time.time() - start))
