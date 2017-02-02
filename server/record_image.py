@@ -26,8 +26,9 @@ images = db[collection]
 
 print 'Start get feature from images...'
 start = time.time()
+dir_path = '%s/static/%s' % (os.getcwd(), lib)
 
-for path in os.walk('%s/%s' % (os.getcwd(), lib)):
+for path in os.walk(dir_path):
     root, dirs, files = path
     image_count = len(files)
     for i in range(image_count):

@@ -8,7 +8,7 @@ from core.sift import sift
 from utils.cv2helper import try_load
 
 
-def get_feature(img, dictionary, lbp_weight = 1):
+def get_feature(img, dictionary, lbp_weight=1):
     image = try_load(img)
     hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)

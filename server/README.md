@@ -1,26 +1,23 @@
 ## 运行准备
 
-1. 安装`Python 2.7 64bit`以及`pip`
+> 以下内容以Windows环境为例
 
-    > pip源最好换成国内的
+### Python环境
 
-    > python必须为64位的版本，否则训练时可能会内存不足导致抛异常
+安装[Anaconda(py2.7, 64bit)](https://www.continuum.io/downloads)即可
 
-1. 安装配置`OpenCV 2.14.13`
-1. 安装配置`MongoDB`
-1. 安装依赖
+> 必须为64位的版本，否则训练时可能会内存不足导致抛异常
 
-    > 最好都装64位的版本，*NIX下注意权限问题
-    
-    ```
-    $ pip install -r requirements.txt
-    ```
-    主要依赖的包：
+### OpenCV
 
-    1. Flask
-    1. numpy
-    1. scipy
-    1. scikit-image
+下载`OpenCV 2.4.13`，将解压后的`<OpenCV_path>/build/python/2.7/x64/cv2.pyd`
+复制到`<Anaconda_path>\Anaconda2\Lib\site-packages`目录下
+
+### MongoDB
+
+安装MongoDB，然后执行
+
+`$ conda install pymongo`
 
 ## 运行
 
@@ -38,7 +35,7 @@
 > 1. 进行聚类时内存占用会较大（一张图片大约换算成1M），**十分耗时**
 
 ```
-$ python ./train.py -l [library name]
+$ <Anaconda_path>/python ./train.py -l [library name]
 ```
 
 ### 导入数据
@@ -46,7 +43,7 @@ $ python ./train.py -l [library name]
 > 此步骤约2秒处理一张图片
 
 ```
-$ python ./record_image.py -l [library name]
+$ <Anaconda_path>/python ./record_image.py -l [library name]
 ```
 
 ### 运行服务器
@@ -58,7 +55,7 @@ $ python ./record_image.py -l [library name]
 #### 开发环境
 
 ```
-$ python ./index.py
+$ <Anaconda_path>/python ./index.py
 ```
 
 #### 生产环境
