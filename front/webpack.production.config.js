@@ -11,7 +11,7 @@ module.exports = {
     path.resolve(__dirname, './index.js')
   ],
   output: {
-    path: path.resolve(__dirname, 'dist'),
+    path: path.resolve(__dirname, '../server/static'),
     filename: 'bundle.js'
   },
   resolve: {
@@ -45,8 +45,7 @@ module.exports = {
       test: /\.css$/,
       loaders: [
         'style-loader',
-        'css-loader?modules&importLoaders=1&localIdentName=[name]__[local]--[hash:base64:5]',
-        'postcss-loader'
+        'css-loader?modules&importLoaders=1&localIdentName=[name]__[local]--[hash:base64:5]'
       ]
     }, {
       test: /\.json$/,
@@ -59,7 +58,7 @@ module.exports = {
     }]
   },
   externals: {
-    "react-dom": "ReactDOM",
-    "react-router": "ReactRouter"
+    "react": "React",
+    "react-dom": "ReactDOM"
   }
 };
