@@ -48,6 +48,12 @@ $ <Anaconda_path>/python ./record_image.py -l [library name]
 
 ### 运行服务器
 
+运行服务器前还需要先部署前端项目，到`../front`目录下执行
+```
+$ npm run deploy
+```
+
+
 服务器分为开发环境与生产环境，
 开发环境在某些情况下容易出现crash的情况，所以只在开发时使用；
 生产环境需要进行部署才能使用
