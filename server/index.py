@@ -1,6 +1,7 @@
 # coding=utf-8
 import cv2
 from flask import Flask, request
+from flask import render_template
 from flask_cors import CORS
 import numpy
 from PIL import Image
@@ -18,7 +19,7 @@ CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 @app.route('/')
 def hello_world():
-    return 'Hello World!'
+    return render_template('index.html')
 
 
 @app.route('/api/search/upload', methods=['POST'])
