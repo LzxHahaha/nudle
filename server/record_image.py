@@ -61,6 +61,5 @@ if __name__ == '__main__':
     pool.close()
     pool.join()
 
-    print '\n'
     datetime_print('Done. Use %fs.' % (time.time() - start))
 

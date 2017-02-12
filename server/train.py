@@ -7,6 +7,7 @@ import time
 import sys
 import os
 from multiprocessing import Pool
+import pymongo
 
 import utils.mongo as mongo
 from core.sift import sift
@@ -80,6 +81,7 @@ if __name__ == '__main__':
     datetime_print('Done. Use %fs.\n' % end_time)
 
     # 保存数据到数据库
-    print 'Save cookbook to database...\n'
+    datetime_print('Save cookbook to database and try to create index...\n')
     dictionaries.update_one({'library': lib}, {'$set': {'dictionary': cookbook.tolist()}}, True)
-    print 'All done.'
+    dictionaries.create_index([('library', pymongo.ASCENDING)], unique=True, background=True)
+    datetime_print('All done.')
