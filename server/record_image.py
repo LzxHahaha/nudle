@@ -48,7 +48,7 @@ if __name__ == '__main__':
     for path in os.walk(dir_path):
         root, dirs, files = path
         for filename in files:
-            image_names.append(('%s/%s/%s' % (root, dirs and '/' + dirs or '', filename), filename))
+            image_names.append(('%s%s/%s' % (root, dirs and '/' + dirs or '', filename), filename))
 
     pool = Pool()
     for i in image_names:
