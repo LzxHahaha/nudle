@@ -8,7 +8,7 @@ mongo_config = {
     'db_name': 'image-retrieval'
 }
 
-mongo_client = MongoClient(mongo_config['host'], mongo_config['port'])
+mongo_client = MongoClient(mongo_config['host'], mongo_config['port'], connect=False)
 
 
 def get_db():
