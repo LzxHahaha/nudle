@@ -29,17 +29,11 @@ def read_images(lib_name):
     image_paths = glob.glob('./static/%s/*' % lib_name)
     path_count = len(image_paths)
     train_count = path_count // 8
-    offset = 1
+    train_image = image_paths[:train_count]
     key_points, lib_descriptors = sift(image_paths[0])
 
     # 分段处理
-    tmp = train_count
-    args = []
-    while tmp > TRAIN_SEGMENT:
-        args.append(image_paths[offset: offset + TRAIN_SEGMENT])
-        tmp -= TRAIN_SEGMENT
-        offset += TRAIN_SEGMENT
-    args.append(image_paths[offset: train_count])
+    args = [train_image[x:x+TRAIN_SEGMENT] for x in range(0, train_count, TRAIN_SEGMENT)]
 
     # 开多线程
     pool = Pool()

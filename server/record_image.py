@@ -8,14 +8,17 @@ import utils.mongo as mongo
 from utils.format_print import datetime_print
 from core.feature import get_feature
 
-TRAIN_SEGMENT = 100
+SEGMENT_STEP = 100
 
 
-def record((file_path, name), lib_dict, lib_name):
+def record(paths, lib_dict, lib_name):
     print '(%s)\tProcessing...' % os.getpid()
     doc = mongo.get_db()['images_' + lib_name]
-    hist, feature = get_feature(file_path, lib_dict)
-    doc.insert({'name': name, 'hist': hist.tolist(), 'feature': feature.tolist()})
+    data = []
+    for (full_path, name) in paths:
+        hist, feature = get_feature(full_path, lib_dict)
+        data.append({'name': name, 'hist': hist.tolist(), 'feature': feature.tolist()})
+    doc.insert_many(data)
     print '(%s)\tProcess done.' % os.getpid()
 
 
@@ -49,10 +52,12 @@ if __name__ == '__main__':
         root, dirs, files = path
         for filename in files:
             image_names.append(('%s%s/%s' % (root, dirs and '/' + dirs or '', filename), filename))
+            
+    args = [image_names[x:x+SEGMENT_STEP] for x in range(0, len(image_names), SEGMENT_STEP)]
 
     pool = Pool()
-    for i in image_names:
-        pool.apply_async(record, args=(i, voc, lib))
+    for arg in args:
+        pool.apply_async(record, args=(arg, voc, lib))
     pool.close()
     pool.join()
 
