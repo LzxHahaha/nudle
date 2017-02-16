@@ -25,10 +25,6 @@ public:
 	GMM_(int K, double thrV = 0.01);
 	~GMM_(void);
 
-	int K() const { return _K; }
-	int maxK() const { return _MaxK; }
-	const Gaussian<D>* GetGaussians() const { return _Guassians; }
-
 	// Returns the probability density of color c in this GMM
 	inline float P(const float c[D]) const;
 	inline float P(const Sample &c) const { return P(c.val); }
@@ -37,26 +33,12 @@ public:
 	inline double P(int i, const float c[D]) const;
 	inline double P(int i, const Sample &c) const { return P(i, c.val); }
 
-	//return the mean color of component k
-	Sample getMean(int k) const;
-
-	//return the weight of component k
-	double getWeight(int k) const;
-
 	// Build the initial GMMs using the Orchard and Bouman color clustering algorithm
 	// w1f: CV32FC1 to indicate weights
 	void BuildGMMs(CMat& sampleDf, Mat& component1i, CMat& w1f = Mat());
 	int RefineGMMs(CMat& sampleDf, Mat& components1i, CMat& w1f = Mat(), bool needReAssign = true); // Iteratively refine GMM
 
-	bool Save(CStr &name) const;
-	bool Load(CStr &name);
 	double GetSumWeight() const { return _sumW; }
-
-	void GetProbs(CMat sampleDf, vector<Mat> &pci1f) const; // Get Probabilities of each Channel i
-	void GetProbsWN(CMat sampleDf, vector<Mat> &pci1f) const; // Get Probabilities of each Channel i, without normalize
-
-	void iluProbs(CMat sampleDf, CStr &nameNE) const; // Get Probabilities of each Channel i, and illustrate it, without normalize
-	void iluProbsWN(CMat sampleDf, CStr &nameNE) const; // Get Probabilities of each Channel i, and illustrate it, without normalize
 
 protected:
 	int _K, _MaxK; // Number of Gaussian
@@ -410,128 +392,4 @@ template <int D> void GMM_<D>::AssignEachPixel(CMat& sampleDf, Mat &component1i)
 			component[x] = k;
 		}
 	}
-}
-
-template <int D> Vec<float, D> GMM_<D>::getMean(int k) const
-{
-	CV_Assert(k >= 0 && k <= _K);
-	Vec3f meanColor;
-	meanColor[0] = (float)_Guassians[k].mean[0];
-	meanColor[1] = (float)_Guassians[k].mean[1];
-	meanColor[2] = (float)_Guassians[k].mean[2];
-	return meanColor;
-}
-
-template <int D> double GMM_<D>::getWeight(int k) const
-{
-	if (k < 0 || k >= _K)
-		return 0.0;
-	return _Guassians[k].w;
-}
-
-template <int D> bool GMM_<D>::Save(CStr &name) const
-{
-	FILE* file = fopen(_S(name), "wb");
-	if (file == NULL)
-		return false;
-	int pre = fwrite("GMM", sizeof(char), 5, file);
-	int dataLen = sizeof(int) * 1 + sizeof(double) * 3;
-	CV_Assert(pre == 5 && fwrite(this, 1, dataLen, file) == dataLen);
-	CV_Assert(fwrite(_Guassians, sizeof(Gaussian), _K, file) == _K);
-	fclose(file);
-	return true;
-}
-
-template <int D> bool GMM_<D>::Load(CStr &name)
-{
-	FILE* file = fopen(_S(name), "rb");
-	if (file == NULL)
-		return false;
-
-	char buf[8];
-	int pre = fread(buf, sizeof(char), 5, file);
-	CV_Assert(pre == 5);
-	if (strncmp(buf, "GMM", 5) != 0)
-	{
-		printf("Invalidate GMM data file %s\n", _S(name));
-		return false;
-	}
-	int oldK = _K;
-	int L1 = sizeof(GMM_), L2 = sizeof(Gaussian*);
-	int dataLen = sizeof(int) * 1 + sizeof(double) * 3;
-	CV_Assert(fread(this, 1, dataLen, file) == dataLen);
-	int g = fread(_Guassians, sizeof(Gaussian), _K, file);
-	CV_Assert(g == _K && oldK >= _K);
-	fclose(file);
-	return true;
-}
-
-template <int D> void GMM_<D>::GetProbs(CMat sampleDf, vector<Mat> &pci) const
-{
-	pci.resize(_K);
-	Mat pI = Mat::zeros(sampleDf.size(), CV_32F);
-	for (int c = 0; c < _K; c++)
-	{// for each component c
-		pci[c].create(sampleDf.size(), CV_32F);
-		for (int y = 0; y < sampleDf.rows; y++)
-		{
-			float* prob = pci[c].ptr<float>(y);
-			const float* sp = sampleDf.ptr<float>(y);
-			for (int x = 0; x < sampleDf.cols; x++, sp += D)
-				prob[x] = (float)(P(c, sp) *_Guassians[c].w);
-		}
-		add(pci[c], pI, pI);
-	}
-
-	for (int c = 0; c < _K; c++)
-		divide(pci[c], pI, pci[c]);
-}
-
-template <int D> void GMM_<D>::GetProbsWN(CMat sampleDf, vector<Mat> &pci) const
-{
-	pci.resize(_K);
-	for (int c = 0; c < _K; c++)
-	{// for each component c
-		pci[c].create(sampleDf.size(), CV_32F);
-		for (int y = 0; y < sampleDf.rows; y++)
-		{
-			float* prob = pci[c].ptr<float>(y);
-			const float* sp = sampleDf.ptr<float>(y);
-			for (int x = 0; x < sampleDf.cols; x++, sp += D)
-				prob[x] = (float)(P(c, sp) *_Guassians[c].w);
-		}
-	}
-}
-
-template <int D> void GMM_<D>::iluProbs(CMat sampleDf, CStr &nameNE) const
-{
-	vector<Mat> pci;
-	GetProbs(sampleDf, pci);
-	Mat tmpShow;
-	for (int i = 0; i < _K; i++)
-	{
-		normalize(pci[i], tmpShow, 0, 255, NORM_MINMAX, CV_8U);
-		CmShow::SaveShow(tmpShow, nameNE + format("%d.png", i));
-	}
-	for (int i = _K; i < _MaxK; i++)
-		CmFile::WriteNullFile(nameNE + format("%d.nul", i));
-}
-
-template <int D> void GMM_<D>::iluProbsWN(CMat sampleDf, CStr &nameNE) const
-{
-	vector<Mat> pci;
-	GetProbsWN(sampleDf, pci);
-	Mat tmpShow;
-	for (int i = 0; i < _K; i++)
-	{
-		double minVal, maxVal;
-		cv::minMaxLoc(pci[i], &minVal, &maxVal);
-		pci[i].convertTo(tmpShow, CV_8U, 255 / (maxVal - minVal + EPS), -minVal);
-		cvtColor(tmpShow, tmpShow, CV_GRAY2BGR);
-		putText(tmpShow, format("Min = %g, ", minVal), Point(5, 20), CV_FONT_HERSHEY_PLAIN, 1, CV_RGB(255, 0, 0));
-		putText(tmpShow, format("Max = %g", maxVal), Point(5, 40), CV_FONT_HERSHEY_PLAIN, 1, CV_RGB(255, 0, 0));
-		CmShow::SaveShow(tmpShow, nameNE + format("%d.png", i));
-	}
-	for (int i = _K; i < _MaxK; i++)
-		CmFile::WriteNullFile(nameNE + format("%d.nul", i));
 }

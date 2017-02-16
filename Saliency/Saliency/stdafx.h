@@ -1,16 +1,16 @@
-// stdafx.h : ±ê×¼ÏµÍ³°üº¬ÎÄ¼þµÄ°üº¬ÎÄ¼þ£¬
-// »òÊÇ¾­³£Ê¹ÓÃµ«²»³£¸ü¸ÄµÄ
-// ÌØ¶¨ÓÚÏîÄ¿µÄ°üº¬ÎÄ¼þ
+// stdafx.h : æ ‡å‡†ç³»ç»ŸåŒ…å«æ–‡ä»¶çš„åŒ…å«æ–‡ä»¶ï¼Œ
+// æˆ–æ˜¯ç»å¸¸ä½¿ç”¨ä½†ä¸å¸¸æ›´æ”¹çš„
+// ç‰¹å®šäºŽé¡¹ç›®çš„åŒ…å«æ–‡ä»¶
 //
 
 #pragma once
 
+#ifndef GPP
+
 #include "targetver.h"
 
-#define WIN32_LEAN_AND_MEAN             // ´Ó Windows Í·ÖÐÅÅ³ý¼«ÉÙÊ¹ÓÃµÄ×ÊÁÏ
-// Windows Í·ÎÄ¼þ: 
+#define WIN32_LEAN_AND_MEAN
+// Windows å¤´æ–‡ä»¶: 
 #include <windows.h>
 
-
-
-// TODO:  ÔÚ´Ë´¦ÒýÓÃ³ÌÐòÐèÒªµÄÆäËûÍ·ÎÄ¼þ
+#endif // !GPP
