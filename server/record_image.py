@@ -16,13 +16,14 @@ def record(paths, lib_dict, lib_name):
     doc = mongo.get_db()['images_' + lib_name]
     data = []
     for (full_path, name) in paths:
-        hist, feature = get_feature(full_path, lib_dict)
-        data.append({'name': name, 'hist': hist.tolist(), 'feature': feature.tolist()})
+        feature = get_feature(full_path, lib_dict)
+        data.append({'name': name, 'feature': feature.tolist()})
     doc.insert_many(data)
     print '(%s)\tProcess done.' % os.getpid()
 
 
 if __name__ == '__main__':
+    datetime_print('Starting...')
     # 配置参数
     parser = argparse.ArgumentParser()
     parser.add_argument('-l, --lib', action='store', dest='library', required=True, help='Image library\'s name.')
@@ -33,6 +34,7 @@ if __name__ == '__main__':
     # 多进程Manager
     process_manager = Manager()
 
+    datetime_print('Starting...')
     # 连接数据库
     db = mongo.get_db()
     dictionaries = db.dictionaries

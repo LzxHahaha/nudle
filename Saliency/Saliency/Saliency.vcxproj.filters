@@ -97,6 +97,5 @@
     <None Include="Saliency.def">
       <Filter>源文件</Filter>
     </None>
-    <None Include="ReadMe.md" />
   </ItemGroup>
 </Project>

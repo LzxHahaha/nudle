@@ -25,18 +25,14 @@ def search(image, library, save=False):
     collection = 'images_' + library
     images = db[collection]
 
-    # TODO: split image
-
-    hist, features = get_feature(image, voc)
-    input_feature = np.vstack((hist, features))
+    input_feature = get_feature(image, voc)
 
     # 计算距离并排序
     lib_images = images.find({})
     images_names = []
     features = []
     for i in lib_images:
-        feature = np.append(i['hist'], i['feature'], axis=0)
-        features.append(feature)
+        features.append(i['feature'])
         images_names.append(i['name'])
     features = np.array(features).T
     distances = scipy.spatial.distance.cdist(features[0].T, input_feature.T)

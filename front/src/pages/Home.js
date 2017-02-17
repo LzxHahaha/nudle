@@ -184,15 +184,6 @@ export default class Home extends React.Component {
                     {
                       feature.length > 0 ? (
                         <div>
-                          <div className={styles.histogramSelector}>
-                            直方图选择：
-                            <select onChange={this.onHistogramChange}>
-                              <option value="All">全部</option>
-                              <option value="HS">H+S Histogram</option>
-                              <option value="LBP">LBP Histogram</option>
-                              <option value="Word">Visual Words Histogram</option>
-                            </select>
-                          </div>
                           <div className={styles.inputHistogram}>
                             <canvas ref={ref => this.histogram = ref} height="190" width={feature.length * 3}>
                               请更新浏览器版本
