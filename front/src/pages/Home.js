@@ -224,7 +224,7 @@ export default class Home extends React.Component {
                     return (
                       <div className={styles.imagePreviewBox}>
                         <img
-                          src={`http://localhost:5000/static/${this.searchLibrary}/${el.name}`}
+                          src={`http://localhost:5000/static/lib_${this.searchLibrary}/${el.name}`}
                           className={styles.imagePreview}
                         />
                       </div>

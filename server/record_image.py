@@ -45,7 +45,7 @@ if __name__ == '__main__':
 
     datetime_print('Start...')
     start = time.time()
-    dir_path = '%s/static/%s' % (os.getcwd(), lib)
+    dir_path = '%s/static/lib_%s' % (os.getcwd(), lib)
 
     image_names = []
     for path in os.walk(dir_path):
