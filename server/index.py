@@ -8,6 +8,7 @@ from PIL import Image
 from skimage import io
 import base64
 from StringIO import StringIO
+import time
 
 from core.search import search
 from utils.json import success, failed
@@ -41,11 +42,14 @@ def upload_search():
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
         # 查找
+        start_time = time.time()
         result, feature = search(image, library)
+        search_time = time.time() - start_time
 
         return success({
             'list': result[:size],
-            'feature': feature
+            'feature': feature,
+            'search_time': search_time
         })
     except Exception, e:
         return failed(500, e.message)
@@ -64,11 +68,14 @@ def url_search():
         image = io.imread(url)
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
+        start_time = time.time()
         result, feature = search(image, library)
+        search_time = time.time() - start_time
 
         return success({
             'list': result[:size],
-            'feature': feature
+            'feature': feature,
+            'search_time': search_time
         })
     except Exception, e:
         return failed(500, e.message)
