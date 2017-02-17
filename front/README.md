@@ -27,4 +27,4 @@ $ npm run dev
 $ npm run deploy
 ```
 
-会在`dist`目录下生成一个`bundle.js`
+会在`../server/static`目录下生成一个`bundle.js`
