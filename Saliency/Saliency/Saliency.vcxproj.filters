@@ -15,12 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="stdafx.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="targetver.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -57,11 +51,14 @@
     <ClInclude Include="Saliency.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="pyboostcvconverter\pyboostcvconverter.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="stdafx.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="Saliency.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -86,10 +83,20 @@
     <ClCompile Include="Basic\Cv.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="pyboost_cv2_converter.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="python_module.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Saliency.def">
       <Filter>源文件</Filter>
     </None>
+    <None Include="ReadMe.md" />
   </ItemGroup>
 </Project>

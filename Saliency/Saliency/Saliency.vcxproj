@@ -76,8 +76,10 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(OPENCV_DIR)\build\include;$(OPENCV_DIR)\build\include\opencv;$(OPENCV_DIR)\build\include\opencv2;$(IncludePath)</IncludePath>
-    <LibraryPath>$(OPENCV_DIR)\build\x64\vc12\lib;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
+    <IncludePath>$(BOOST_DIR);$(ANACONDA_DIR)\include;$(ANACONDA_DIR)\Lib\site-packages\numpy\core\include;$(OPENCV_DIR)\build\include;$(OPENCV_DIR)\build\include\opencv;$(OPENCV_DIR)\build\include\opencv2;$(IncludePath)</IncludePath>
+    <LibraryPath>$(BOOST_DIR)\lib;$(ANACONDA_DIR)\libs;$(ANACONDA_DIR)\Lib\site-packages\numpy\core\lib;$(OPENCV_DIR)\build\x64\vc12\lib;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
+    <TargetName>saliency_rc_cut</TargetName>
+    <TargetExt>.pyd</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -86,8 +88,10 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(OPENCV_DIR)\build\include;$(OPENCV_DIR)\build\include\opencv;$(OPENCV_DIR)\build\include\opencv2;$(IncludePath)</IncludePath>
-    <LibraryPath>$(OPENCV_DIR)\build\x64\vc12\lib;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
+    <IncludePath>$(BOOST_DIR);$(ANACONDA_DIR)\include;$(ANACONDA_DIR)\Lib\site-packages\numpy\core\include;$(OPENCV_DIR)\build\include;$(OPENCV_DIR)\build\include\opencv;$(OPENCV_DIR)\build\include\opencv2;$(IncludePath)</IncludePath>
+    <LibraryPath>$(BOOST_DIR)\lib;$(ANACONDA_DIR)\libs;$(ANACONDA_DIR)\Lib\site-packages\numpy\core\lib;$(OPENCV_DIR)\build\x64\vc12\lib;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
+    <TargetName>saliency_rc_cut</TargetName>
+    <TargetExt>.pyd</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -162,11 +166,9 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="Basic\Cv.h" />
     <ClInclude Include="Basic\Definition.h" />
+    <ClInclude Include="pyboostcvconverter\pyboostcvconverter.hpp" />
     <ClInclude Include="Saliency.h" />
     <ClInclude Include="Cluster\GMM.h" />
     <ClInclude Include="Saliency\SaliencyCut.h" />
@@ -197,18 +199,16 @@
       </PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Cluster\GMM.cpp" />
+    <ClCompile Include="pyboost_cv2_converter.cpp" />
+    <ClCompile Include="python_module.cpp" />
     <ClCompile Include="Saliency.cpp" />
     <ClCompile Include="Saliency\SaliencyRC.cpp" />
     <ClCompile Include="Saliency\SaliencyCut.cpp" />
     <ClCompile Include="Segmentation\EfficientGraphBased\segment-image.cpp" />
-    <ClCompile Include="stdafx.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-    </ClCompile>
+    <ClCompile Include="stdafx.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="ReadMe.md" />
     <None Include="Saliency.def" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
