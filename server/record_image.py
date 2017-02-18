@@ -23,6 +23,7 @@ def record(paths, lib_dict, lib_name):
 
 
 if __name__ == '__main__':
+    datetime_print('Starting...')
     # 配置参数
     parser = argparse.ArgumentParser()
     parser.add_argument('-l, --lib', action='store', dest='library', required=True, help='Image library\'s name.')
@@ -33,6 +34,7 @@ if __name__ == '__main__':
     # 多进程Manager
     process_manager = Manager()
 
+    datetime_print('Connecting to database...')
     # 连接数据库
     db = mongo.get_db()
     dictionaries = db.dictionaries
@@ -43,7 +45,7 @@ if __name__ == '__main__':
     collection = 'images_' + lib
     images = db[collection]
 
-    datetime_print('Start...')
+    datetime_print('Recording...')
     start = time.time()
     dir_path = '%s/static/lib_%s' % (os.getcwd(), lib)
 

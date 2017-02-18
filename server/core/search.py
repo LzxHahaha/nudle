@@ -1,16 +1,12 @@
 # coding=utf-8
 import numpy as np
-import scipy
+import scipy.spatial
 
 from core.feature import get_feature
 from utils.mongo import get_db
 
 
-# TODO: 考虑保存字典到内存中
-# DICTIONARIES = {}
-
-
-def search(image, library, save=False):
+def search(image, library):
     if image is None:
         raise Exception('Image can not be None.')
 
@@ -44,12 +40,4 @@ def search(image, library, save=False):
     sort = np.argsort(distances.T)
     result = [{'name': images_names[i], 'distance': distances[i][0]} for i in sort[0]]
 
-    if save and distances[sort[0]] > 0:
-        save_image(image)
-
     return result, (input_feature.T.tolist())[0]
-
-
-def save_image(image):
-    # TODO: 异步保存图片
-    pass

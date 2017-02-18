@@ -26,11 +26,11 @@ def get_features(paths):
     return res
 
 
-def read_images(lib_name):
-    image_paths = glob.glob('./static/%s/*' % lib_name)
+def read_images(lib_name, train_step):
+    image_paths = glob.glob('./static/lib_%s/*' % lib_name)
     path_count = len(image_paths)
     train_count = path_count // 8
-    train_image = image_paths[:train_count]
+    train_image = [image_paths[x] for x in range(0, train_count * train_step, train_step)]
     key_points, lib_descriptors = sift(image_paths[0])
 
     # 分段处理
@@ -49,9 +49,15 @@ if __name__ == '__main__':
     # 配置脚本参数
     parser = argparse.ArgumentParser()
     parser.add_argument('-l, --lib', action='store', dest='library', required=True, help='Image library\'s name.')
+    parser.add_argument('-s, --step', action='store', dest='step', default=1, help='Train image selected step.')
     # 读取参数
     params = parser.parse_args()
     lib = params.library
+    step = int(params.step)
+    if step <= 0:
+        step = 1
+    elif step > 8:
+        step = 8
 
     # 检查之前是否已经生成过
     db = mongo.get_db()
@@ -69,7 +75,7 @@ if __name__ == '__main__':
     # 取 1/8 的图片生成做训练
     datetime_print('Start get SIFT feature from images...')
     start_time = time.time()
-    descriptors = read_images(lib)
+    descriptors = read_images(lib, step)
     end_time = time.time() - start_time
     datetime_print('Done. Use %fs.\n' % end_time)
 
