@@ -9,9 +9,15 @@ from skimage import io
 import base64
 from StringIO import StringIO
 import time
+import pymongo.errors
 
 from core.search import search
-from utils.json import success, failed
+from utils.json import success, failed, error
+import config
+
+
+if config.DEV:
+    print '==========================\n*  Development mode: ON  *\n=========================='
 
 app = Flask(__name__)
 # 允许API跨域
@@ -51,8 +57,10 @@ def upload_search():
             'feature': feature,
             'search_time': search_time
         })
-    except Exception, e:
-        return failed(500, e.message)
+    except pymongo.errors.ServerSelectionTimeoutError:
+        return failed(504, 'Database Connect time out.')
+    except Exception:
+        return error(500)
 
 
 @app.route('/api/search/url', methods=['POST'])
@@ -77,9 +85,13 @@ def url_search():
             'feature': feature,
             'search_time': search_time
         })
-    except Exception, e:
-        return failed(500, e.message)
+    except pymongo.errors.ServerSelectionTimeoutError:
+        return failed(504, 'Database Connect time out.')
+    except Exception:
+        return error(500)
 
 
 if __name__ == '__main__':
+    if not config.DEV:
+        print 'WARNING: Now is dev mode, do NOT use it in the production environment.'
     app.run()

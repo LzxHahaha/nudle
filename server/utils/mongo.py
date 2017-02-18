@@ -1,15 +1,10 @@
 # coding=utf-8
 from pymongo import MongoClient
 
-# TODO: read from config file
-mongo_config = {
-    'host': 'localhost',
-    'port': 27017,
-    'db_name': 'image-retrieval'
-}
+from config import MONGO_DB
 
-mongo_client = MongoClient(mongo_config['host'], mongo_config['port'], connect=False)
+mongo_client = MongoClient(MONGO_DB['host'], MONGO_DB['port'], connect=False)
 
 
 def get_db():
-    return mongo_client[mongo_config['db_name']]
+    return mongo_client[MONGO_DB['db_name']]

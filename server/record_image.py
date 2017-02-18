@@ -34,7 +34,7 @@ if __name__ == '__main__':
     # 多进程Manager
     process_manager = Manager()
 
-    datetime_print('Starting...')
+    datetime_print('Connecting to database...')
     # 连接数据库
     db = mongo.get_db()
     dictionaries = db.dictionaries
@@ -45,7 +45,7 @@ if __name__ == '__main__':
     collection = 'images_' + lib
     images = db[collection]
 
-    datetime_print('Start...')
+    datetime_print('Recording...')
     start = time.time()
     dir_path = '%s/static/lib_%s' % (os.getcwd(), lib)
 
