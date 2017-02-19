@@ -123,6 +123,12 @@
     flex-direction: row;
 }
 
+@media screen and (max-width: 768px) {
+    .inputImageView {
+        overflow-x: scroll;
+    }
+}
+
 .inputImage {
     height: 250px;
 }
@@ -132,7 +138,12 @@
     background-color: #E5E5E5;
     padding: 0 15px;
     height: 250px;
-    overflow-x: hidden;
+}
+
+@media screen and (min-width: 768px) {
+    .inputHistogramBox {
+        overflow-x: scroll;
+    }
 }
 
 .histogramSelector {
@@ -143,19 +154,5 @@
 
 .inputHistogram {
     width: 100%;
-    overflow-x: scroll;
     margin-top: 20px;
-}
-
-.imagePreviewBox {
-    display: inline-block;
-    width: 25%;
-    height: 200px;
-    padding: 5px 0;
-    text-align: center;
-    overflow: hidden;
-}
-
-.imagePreview {
-    height: 100%;
 }

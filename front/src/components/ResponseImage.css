@@ -1,0 +1,49 @@
+.box {
+    display: inline-block;
+    position: relative;
+    width: 25%;
+    text-align: center;
+    margin: 5px 0;
+}
+
+.image {
+    display: block;
+    margin: auto;
+    max-height: 200px;
+    max-width: 95%;
+}
+
+@media screen and (min-width: 768px) and (max-width: 992px) {
+    .box {
+        width: 50%;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .box {
+        width: 100%;
+    }
+}
+
+.infoBox {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    top: 0;
+    left: 2.5%;
+    width: 95%;
+    height: 100%;
+    background-color: rgba(43, 43, 43, 0.6);
+    opacity: 0;
+    transition: 0.5s;
+}
+
+.infoBox:hover {
+    opacity: 1;
+}
+
+.infoText {
+    color: white;
+    font-weight: bold;
+}

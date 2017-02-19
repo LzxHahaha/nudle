@@ -6,6 +6,7 @@ import styles from './Home.css';
 
 import Modal from '../components/modal';
 import Button from '../components/Button';
+import ResponseImage from '../components/ResponseImage';
 
 import Request from '../utils/Request';
 
@@ -24,10 +25,10 @@ export default class Home extends React.Component {
       sourceImage: '',
       display: [],
       feature: [],
-      library: LIBRARYS[0].value
+      library: LIBRARYS[0].value,
+      searchTime: 0
     };
 
-    this.list = [];
     this.selectedImage = '';
     this.imageReader = new FileReader();
     this.imageReader.onload =  e => this.selectedImage = e.target.result;
@@ -69,7 +70,6 @@ export default class Home extends React.Component {
   onSearchPress = async (isUrl) => {
     this.setState({searching: true, display: []});
     let result = null;
-    let display = null;
     try {
       if (isUrl) {
         this.setState({ sourceImage: this.state.searchText });
@@ -80,10 +80,8 @@ export default class Home extends React.Component {
         result = await this.searchUpload();
       }
 
-      this.list = result.list;
       this.searchLibrary = this.state.library;
-      display = this.list.splice(0, 20);
-      await this.setState({ display, feature: result.feature });
+      await this.setState({ display: result.list, feature: result.feature, searchTime: result.search_time });
       this.renderAllHistogram(result.feature);
     }
     catch (err) {
@@ -144,7 +142,7 @@ export default class Home extends React.Component {
   }
 
   render() {
-    const { searching, display, searchText, sourceImage, feature, library } = this.state;
+    const { searching, display, searchText, sourceImage, feature, searchTime } = this.state;
 
     return (
       <div className={styles.container}>
@@ -209,16 +207,20 @@ export default class Home extends React.Component {
           {
             display.length > 0 && (
               <div>
-                <h3>搜索结果</h3>
+                <h3>
+                  搜索结果
+                </h3>
+                <p>
+                  用时：{searchTime}秒
+                </p>
                 {
                   display.map(el => {
                     return (
-                      <div className={styles.imagePreviewBox}>
-                        <img
-                          src={`http://localhost:5000/static/lib_${this.searchLibrary}/${el.name}`}
-                          className={styles.imagePreview}
-                        />
-                      </div>
+                      <ResponseImage
+                        src={`http://localhost:5000/static/lib_${this.searchLibrary}/${el.name}`}
+                        className={styles.imagePreviewBox}
+                        info={`${el.distance}`}
+                      />
                     );
                   })
                 }
