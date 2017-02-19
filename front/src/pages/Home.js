@@ -33,6 +33,7 @@ export default class Home extends React.Component {
     this.imageReader = new FileReader();
     this.imageReader.onload =  e => this.selectedImage = e.target.result;
     this.searchLibrary = '';
+    this.SIFTCount = 0
   }
 
   async searchUrl() {
@@ -68,7 +69,7 @@ export default class Home extends React.Component {
   };
 
   onSearchPress = async (isUrl) => {
-    this.setState({searching: true, display: []});
+    this.setState({searching: true, display: [], feature: []});
     let result = null;
     try {
       if (isUrl) {
@@ -81,12 +82,14 @@ export default class Home extends React.Component {
       }
 
       this.searchLibrary = this.state.library;
+      this.SIFTCount = result.feature.length - 2 * (64 + 16 + 256);
       await this.setState({ display: result.list, feature: result.feature, searchTime: result.search_time });
       this.renderAllHistogram(result.feature);
     }
     catch (err) {
       alert(err.message);
       await this.setState({ sourceImage: '' });
+      this.SIFTCount = 0;
     }
     finally {
       this.setState({ searching: false });
@@ -104,41 +107,37 @@ export default class Home extends React.Component {
     const max = Math.max(...feature);
     const step = height / max;
 
-    // TODO: 区分开HSV和feature，以及前景背景
-    for (let i = 0; i < feature.length; ++i) {
-      if (i == 63) {
-        ctx.fillStyle="#00ff00";
-      }
-      else if (i == 79) {
-        ctx.fillStyle="#0000ff";
-      }
-      else if (i == 335) {
-        ctx.fillStyle="#f0f";
-      }
+    const segments = [
+      63,
+      63 + 16,
+      63 + 16 + 256,
+      63 + 16 + 256 + this.SIFTCount,
+      63 + 16 + 256 + this.SIFTCount + 64,
+      63 + 16 + 256 + this.SIFTCount + 64 + 16,
+      feature.length
+    ];
+    const colors = [
+      '#f00',
+      '#0f0',
+      '#00f',
+      '#ff0',
+      '#f00',
+      '#0f0',
+      '#00f'
+    ];
 
-      const h = feature[i] * step;
-      ctx.translate(0, height - h - 1);
-      ctx.fillRect(0, 0, 3, h + 1);
-      ctx.translate(3, h - height + 1);
+    let j = 0;
+    for (let i = 0; i < segments.length; ++i) {
+      ctx.fillStyle = colors[i];
+      for (; j < segments[i]; ++j) {
+        const h = feature[j] * step;
+        ctx.translate(0, height - h - 1);
+        ctx.fillRect(0, 0, 3, h + 1);
+        ctx.translate(3, h - height + 1);
+      }
     }
 
     ctx.restore();
-  }
-
-  renderHSHistogram(feature) {
-
-  }
-
-  renderLBPHistogram(feature) {
-
-  }
-
-  renderWordHistogram(feature) {
-
-  }
-
-  renderHistogram() {
-    // TODO: 封装画图函数
   }
 
   render() {
