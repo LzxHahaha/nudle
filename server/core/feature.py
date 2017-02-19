@@ -13,25 +13,27 @@ def get_feature(img, dictionary):
     image = try_load(img)
 
     fg, bg = cut(image)
-    fb_feature = _get_hist(fg, dictionary, 3)
-    bg_feature = _get_hist(bg, dictionary, 2)
+    fb_feature = _foreground_hist(fg, dictionary)
+    bg_feature = _background_hist(bg)
 
-    return np.vstack((fb_feature, bg_feature))
+    return np.vstack((fb_feature, bg_feature)).T[0]
 
 
-def _get_hist(image, dictionary, lbp_weight):
+def _foreground_hist(image, dictionary):
     hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     features = np.zeros((len(dictionary), 1), np.uint)
     # H/S Histogram
     hist_h = cv2.calcHist([hsv_image], [0], None, [64], [0, 180])
+    hist_h[0][0] = 0
     hist_s = cv2.calcHist([hsv_image], [1], None, [16], [0, 256])
+    hist_s[0][0] = 0
     # LBP
     lbp_image = local_binary_pattern(gray_image, 8 * 3, 3)
     lbp_image = np.float32(lbp_image)
     hist_v = cv2.calcHist([lbp_image], [0], None, [256], [0, 256])
     # LBP 权重
-    hist_v *= lbp_weight
+    hist_v *= 3
 
     # 词频统计
     key_points, descriptor = sift(image)
@@ -40,3 +42,19 @@ def _get_hist(image, dictionary, lbp_weight):
         features[word][0] += 1
 
     return np.vstack((hist_h, hist_s, hist_v, features))
+
+
+def _background_hist(image):
+    hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    # H/S Histogram
+    hist_h = cv2.calcHist([hsv_image], [0], None, [64], [0, 180])
+    hist_s = cv2.calcHist([hsv_image], [1], None, [16], [0, 256])
+    # LBP
+    lbp_image = local_binary_pattern(gray_image, 8 * 3, 3)
+    lbp_image = np.float32(lbp_image)
+    hist_v = cv2.calcHist([lbp_image], [0], None, [256], [0, 256])
+    # LBP 权重
+    hist_v *= 2
+
+    return np.vstack((hist_h, hist_s, hist_v))

@@ -8,18 +8,19 @@ import utils.mongo as mongo
 from utils.format_print import datetime_print
 from core.feature import get_feature
 
-SEGMENT_STEP = 100
+SEGMENT_STEP = 10
 
 
 def record(paths, lib_dict, lib_name):
     print '(%s)\tProcessing...' % os.getpid()
     doc = mongo.get_db()['images_' + lib_name]
     data = []
+    process_start = time.time()
     for (full_path, name) in paths:
         feature = get_feature(full_path, lib_dict)
         data.append({'name': name, 'feature': feature.tolist()})
     doc.insert_many(data)
-    print '(%s)\tProcess done.' % os.getpid()
+    print '(%s)\tProcess done. -- %fs --' % (os.getpid(), time.time() - process_start)
 
 
 if __name__ == '__main__':
@@ -53,7 +54,7 @@ if __name__ == '__main__':
     for path in os.walk(dir_path):
         root, dirs, files = path
         for filename in files:
-            image_names.append(('%s%s/%s' % (root, dirs and '/' + dirs or '', filename), filename))
+            image_names.append(('%s/%s' % (root, filename), filename))
             
     args = [image_names[x:x+SEGMENT_STEP] for x in range(0, len(image_names), SEGMENT_STEP)]
 

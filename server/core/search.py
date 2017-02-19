@@ -1,6 +1,6 @@
 # coding=utf-8
 import numpy as np
-import scipy.spatial
+import cv2
 
 from core.feature import get_feature
 from utils.mongo import get_db
@@ -22,6 +22,7 @@ def search(image, library):
     images = db[collection]
 
     input_feature = get_feature(image, voc)
+    input_feature = np.float32(input_feature)
 
     # 计算距离并排序
     lib_images = images.find({})
@@ -30,10 +31,13 @@ def search(image, library):
     for i in lib_images:
         features.append(i['feature'])
         images_names.append(i['name'])
-    features = np.array(features).T
-    distances = scipy.spatial.distance.cdist(features[0].T, input_feature.T)
+    features = np.array(features, np.float32)
+    distances = []
+    for f in features:
+        d = cv2.compareHist(input_feature, f, cv2.cv.CV_COMP_CHISQR)
+        distances.append(d)
 
-    sort = np.argsort(distances.T)
-    result = [{'name': images_names[i], 'distance': distances[i][0]} for i in sort[0]]
+    sort = np.argsort(np.array(distances))
+    result = [{'name': images_names[i], 'distance': distances[i]} for i in sort]
 
-    return result, (input_feature.T.tolist())[0]
+    return result, (input_feature.tolist())
