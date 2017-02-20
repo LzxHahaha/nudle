@@ -43,9 +43,6 @@ if __name__ == '__main__':
     voc = dictionary['dictionary']
     voc = process_manager.list(voc)
 
-    collection = 'images_' + lib
-    images = db[collection]
-
     datetime_print('Recording...')
     start = time.time()
     dir_path = '%s/static/lib_%s' % (os.getcwd(), lib)
