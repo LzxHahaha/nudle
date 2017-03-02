@@ -11,7 +11,8 @@ import ResponseImage from '../components/ResponseImage';
 import Request from '../utils/Request';
 
 const LIBRARYS = [
-  {label: 'VOC 2006', value: 'voc2006'}
+  {label: 'VOC 2006', value: 'voc2006'},
+  {label: 'THUR15000', value: 'thur15000'}
 ];
 
 export default class Home extends React.Component {
@@ -52,10 +53,6 @@ export default class Home extends React.Component {
 
   onLibraryChange = e => {
     this.setState({ library: e.target.value });
-  };
-
-  onHistogramChange = e => {
-    this[`render${e.target.value}Histogram`]();
   };
 
   onSearchTextChange = (e) => {

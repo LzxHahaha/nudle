@@ -4,7 +4,7 @@
 
 import * as URI from 'urijs';
 
-const HOST = 'http://localhost:5000/';
+const HOST = process.env.NODE_ENV === 'production' ? '/' : 'http://localhost:5000/';
 
 export default class Request {
   static async get(url, data) {
