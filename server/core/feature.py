@@ -12,49 +12,40 @@ from utils.cv2helper import try_load
 def get_feature(img, dictionary):
     image = try_load(img)
 
-    fg, bg = cut(image)
-    fb_feature = _foreground_hist(fg, dictionary)
-    bg_feature = _background_hist(bg)
+    fg, bg, fg_area, bg_area = cut(image)
+    f_h, f_s, f_lbp = base_hist(fg, lbp_weight=3, useless_area=bg_area)
+    b_h, b_s, b_lbp = base_hist(bg, lbp_weight=2, useless_area=fg_area)
+    sift_hist = sift_count(fg, dictionary)
 
-    return np.vstack((fb_feature, bg_feature)).T[0]
+    return np.vstack((f_h, f_s, f_lbp, sift_hist, b_h, b_s, b_lbp)).T[0]
 
 
-def _foreground_hist(image, dictionary):
+def base_hist(image, lbp_weight=1, useless_area=0):
     hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    features = np.zeros((len(dictionary), 1), np.uint)
     # H/S Histogram
     hist_h = cv2.calcHist([hsv_image], [0], None, [64], [0, 180])
-    hist_h[0][0] = 0
     hist_s = cv2.calcHist([hsv_image], [1], None, [16], [0, 256])
-    hist_s[0][0] = 0
     # LBP
     lbp_image = local_binary_pattern(gray_image, 8 * 3, 3)
-    lbp_image = np.float32(lbp_image)
-    hist_v = cv2.calcHist([lbp_image], [0], None, [256], [0, 256])
+    lbp_image = np.uint8(lbp_image)
+    hist_lbp = cv2.calcHist([lbp_image], [0], None, [256], [0, 256])
+    # 扣除掉没用的部分
+    hist_h[0][0] -= useless_area
+    hist_s[0][0] -= useless_area
+    hist_lbp[-1][0] -= useless_area
     # LBP 权重
-    hist_v *= 3
+    if lbp_weight > 1:
+        hist_lbp *= lbp_weight
 
-    # 词频统计
+    return hist_h, hist_s, hist_lbp
+
+
+def sift_count(image, dictionary):
+    features = np.zeros((len(dictionary), 1), np.uint)
     key_points, descriptor = sift(image)
     words, distance = vq.vq(descriptor, dictionary)
     for word in words:
         features[word][0] += 1
 
-    return np.vstack((hist_h, hist_s, hist_v, features))
-
-
-def _background_hist(image):
-    hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-    gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    # H/S Histogram
-    hist_h = cv2.calcHist([hsv_image], [0], None, [64], [0, 180])
-    hist_s = cv2.calcHist([hsv_image], [1], None, [16], [0, 256])
-    # LBP
-    lbp_image = local_binary_pattern(gray_image, 8 * 3, 3)
-    lbp_image = np.float32(lbp_image)
-    hist_v = cv2.calcHist([lbp_image], [0], None, [256], [0, 256])
-    # LBP 权重
-    hist_v *= 2
-
-    return np.vstack((hist_h, hist_s, hist_v))
+    return features
