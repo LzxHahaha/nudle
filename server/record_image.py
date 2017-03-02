@@ -2,17 +2,15 @@
 import argparse
 import os
 import time
-from multiprocessing import Manager, Pool
+from multiprocessing import Manager, Pool, cpu_count
 
 import utils.mongo as mongo
 from utils.format_print import datetime_print
 from core.feature import get_feature
 
-SEGMENT_STEP = 10
-
 
 def record(paths, lib_dict, lib_name):
-    print '(%s)\tProcessing...' % os.getpid()
+    print '(%s)\tProcessing, mission count: %d' % (os.getpid(), len(paths))
     doc = mongo.get_db()['images_' + lib_name]
     data = []
     process_start = time.time()
@@ -52,8 +50,10 @@ if __name__ == '__main__':
         root, dirs, files = path
         for filename in files:
             image_names.append(('%s/%s' % (root, filename), filename))
-            
-    args = [image_names[x:x+SEGMENT_STEP] for x in range(0, len(image_names), SEGMENT_STEP)]
+
+    image_count = len(image_names)
+    segment_count = image_count // cpu_count()
+    args = [image_names[x:x + segment_count] for x in range(0, image_count, segment_count)]
 
     pool = Pool()
     for arg in args:

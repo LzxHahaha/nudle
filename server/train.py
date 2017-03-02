@@ -6,14 +6,12 @@ import glob
 import time
 import sys
 import os
-from multiprocessing import Pool
+from multiprocessing import Pool, cpu_count
 import pymongo
 
 import utils.mongo as mongo
 from core.sift import sift
 from utils.format_print import datetime_print
-
-TRAIN_SEGMENT = 100
 
 
 def get_features(paths):
@@ -34,7 +32,8 @@ def read_images(lib_name, train_step):
     key_points, lib_descriptors = sift(image_paths[0])
 
     # 分段处理
-    args = [train_image[x:x+TRAIN_SEGMENT] for x in range(0, train_count, TRAIN_SEGMENT)]
+    train_segment = train_count // cpu_count()
+    args = [train_image[x:x + train_segment] for x in range(0, train_count, train_segment)]
 
     # 开多线程
     pool = Pool()

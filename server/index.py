@@ -29,6 +29,11 @@ def hello_world():
     return render_template('index.html')
 
 
+@app.route('/test')
+def test_page():
+    return 'Hello world!'
+
+
 @app.route('/api/search/upload', methods=['POST'])
 def upload_search():
     try:
