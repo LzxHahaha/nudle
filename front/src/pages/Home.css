@@ -119,40 +119,33 @@
 }
 
 .inputImageView {
+    position: relative;
     display: flex;
     flex-direction: row;
 }
 
-@media screen and (max-width: 768px) {
-    .inputImageView {
-        overflow-x: scroll;
-    }
-}
-
 .inputImage {
     height: 250px;
+    max-width: 100%;
+    margin: 0 auto;
 }
 
 .inputHistogramBox {
     flex: 1;
     background-color: #E5E5E5;
-    padding: 0 15px;
     height: 250px;
+    position: relative;
+    padding: 0 10px;
 }
 
-@media screen and (min-width: 768px) {
-    .inputHistogramBox {
-        overflow-x: scroll;
+@media screen and (max-width: 768px) {
+    .inputImageView {
+        flex-direction: column;
     }
 }
 
-.histogramSelector {
-    display: flex;
-    justify-content: flex-end;
-    margin: 5px 0;
-}
-
-.inputHistogram {
-    width: 100%;
-    margin-top: 20px;
+.histSelector {
+    position: absolute;
+    right: 10px;
+    bottom: 15px;
 }

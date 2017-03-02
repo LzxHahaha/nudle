@@ -1,6 +1,7 @@
 import React from 'react';
 import FontAwesome from 'react-fontawesome';
 import classNames from 'classnames';
+import echarts from 'echarts';
 
 import styles from './Home.css';
 
@@ -9,6 +10,10 @@ import Button from '../components/Button';
 import ResponseImage from '../components/ResponseImage';
 
 import Request from '../utils/Request';
+
+const HIST_NAMES = [
+  'foreground-h', 'foreground-s', 'foreground-lbp', 'sift-statistics',
+  'background-h', 'background-s', 'background-lbp'];
 
 export default class Home extends React.Component {
   constructor(props) {
@@ -20,7 +25,6 @@ export default class Home extends React.Component {
       searchText: '',
       sourceImage: '',
       display: [],
-      feature: [],
       libraries: [],
       chooseLibrary: null,
       searchTime: 0
@@ -30,7 +34,8 @@ export default class Home extends React.Component {
     this.imageReader = new FileReader();
     this.imageReader.onload =  e => this.selectedImage = e.target.result;
     this.searchLibrary = '';
-    this.SIFTCount = 0
+    this.histograms = null;
+    this.chart = null;
   }
 
   async componentWillMount() {
@@ -79,7 +84,7 @@ export default class Home extends React.Component {
       return null;
     }
 
-    this.setState({searching: true, display: [], feature: []});
+    this.setState({searching: true, display: []});
     let result = null;
     try {
       if (isUrl) {
@@ -92,66 +97,58 @@ export default class Home extends React.Component {
       }
 
       this.searchLibrary = this.state.chooseLibrary;
-      this.SIFTCount = result.feature.length - 2 * (64 + 16 + 256);
-      await this.setState({ display: result.list, feature: result.feature, searchTime: result.search_time });
-      this.renderAllHistogram(result.feature);
+      this.histograms = result.histograms;
+      await this.setState({ display: result.list, searchTime: result.search_time });
+      this.updateChart(HIST_NAMES[0]);
     }
     catch (err) {
       alert(err.message);
       await this.setState({ sourceImage: '' });
-      this.SIFTCount = 0;
     }
     finally {
       this.setState({ searching: false });
     }
   };
 
-  renderAllHistogram(feature) {
-    const ctx = this.histogram.getContext('2d');
-    const { height } = this.histogram;
+  onHistChange = (e) => {
+    this.updateChart(e.target.value);
+  };
 
-    ctx.clearRect(0, 0, feature.length * 3, height);
-    ctx.save();
-    ctx.fillStyle="#ff0000";
-
-    const max = Math.max(...feature);
-    const step = height / max;
-
-    const segments = [
-      63,
-      63 + 16,
-      63 + 16 + 256,
-      63 + 16 + 256 + this.SIFTCount,
-      63 + 16 + 256 + this.SIFTCount + 64,
-      63 + 16 + 256 + this.SIFTCount + 64 + 16,
-      feature.length
-    ];
-    const colors = [
-      '#f00',
-      '#0f0',
-      '#00f',
-      '#ff0',
-      '#f00',
-      '#0f0',
-      '#00f'
-    ];
-
-    let j = 0;
-    for (let i = 0; i < segments.length; ++i) {
-      ctx.fillStyle = colors[i];
-      for (; j < segments[i]; ++j) {
-        const h = feature[j] * step;
-        ctx.translate(0, height - h - 1);
-        ctx.fillRect(0, 0, 3, h + 1);
-        ctx.translate(3, h - height + 1);
-      }
+  updateChart = (histName) => {
+    if (!this.histograms || !this.histograms[histName]) {
+      return;
     }
 
-    ctx.restore();
-  }
+    if (!this.chart) {
+      this.chart = echarts.init(document.getElementById('histContainer'));
+      window.onresize = this.chart.resize;
+    }
+
+    const data = this.histograms[histName];
+    this.chart.setOption({
+      title: {
+        text: histName,
+        left: 'center',
+        padding: [20, 0, 5, 0]
+      },
+      xAxis: {
+        data: []
+      },
+      yAxis: {
+        splitLine: {show: true}
+      },
+      animationDurationUpdate: 1200,
+      backgroundColor: '#E5E5E5',
+      series: [{
+        name: histName,
+        type: 'bar',
+        data
+      }]
+    });
+  };
 
   render() {
-    const { libraries, searching, display, searchText, sourceImage, feature, searchTime } = this.state;
+    const { libraries, searching, display, searchText, sourceImage, searchTime } = this.state;
 
     return (
       <div className={styles.container}>
@@ -187,19 +184,20 @@ export default class Home extends React.Component {
                 <h3>输入图片信息</h3>
                 <div className={styles.inputImageView}>
                   <img src={sourceImage} className={styles.inputImage} />
-                  <div className={styles.inputHistogramBox}>
-                    {
-                      feature.length > 0 ? (
-                        <div>
-                          <div className={styles.inputHistogram}>
-                            <canvas ref={ref => this.histogram = ref} height="190" width={feature.length * 3}>
-                              请更新浏览器版本
-                            </canvas>
-                          </div>
-                        </div>
-                      ) : <h3>生成中...</h3>
-                    }
+                  <div className={styles.inputHistogramBox}  id="histContainer">
+                    <p style={{textAlign: 'center'}}>生成中...</p>
                   </div>
+                  {
+                    !!this.histograms && (
+                      <select onChange={this.onHistChange} className={styles.histSelector}>
+                        {
+                          HIST_NAMES.map(el => (
+                            <option>{el}</option>
+                          ))
+                        }
+                      </select>
+                    )
+                  }
                 </div>
               </div>
             )

@@ -2,7 +2,7 @@
 import numpy as np
 import cv2
 
-from core.feature import get_feature
+from core.feature import get_histograms, concat_histogram
 from utils.mongo import get_db
 
 
@@ -21,8 +21,8 @@ def search(image, library):
     collection = 'images_' + library
     images = db[collection]
 
-    input_feature = get_feature(image, voc)
-    input_feature = np.float32(input_feature)
+    input_hist = get_histograms(image, voc)
+    input_feature = np.float32(concat_histogram(input_hist))
 
     # 计算距离并排序
     lib_images = images.find({})
@@ -40,4 +40,12 @@ def search(image, library):
     sort = np.argsort(np.array(distances))
     result = [{'name': images_names[i], 'distance': distances[i]} for i in sort]
 
-    return result, (input_feature.tolist())
+    return result, {
+        'foreground-h': input_hist[0].T[0].tolist(),
+        'foreground-s': input_hist[1].T[0].tolist(),
+        'foreground-lbp': input_hist[2].T[0].tolist(),
+        'sift-statistics': input_hist[3].T[0].tolist(),
+        'background-h': input_hist[4].T[0].tolist(),
+        'background-s': input_hist[5].T[0].tolist(),
+        'background-lbp': input_hist[6].T[0].tolist()
+    }

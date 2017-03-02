@@ -6,7 +6,7 @@ from multiprocessing import Manager, Pool, cpu_count
 
 import utils.mongo as mongo
 from utils.format_print import datetime_print
-from core.feature import get_feature
+from core.feature import get_histograms, concat_histogram
 
 
 def record(paths, lib_dict, lib_name):
@@ -15,8 +15,9 @@ def record(paths, lib_dict, lib_name):
     data = []
     process_start = time.time()
     for (full_path, name) in paths:
-        feature = get_feature(full_path, lib_dict)
-        data.append({'name': name, 'feature': feature.tolist()})
+        histograms = get_histograms(full_path, lib_dict)
+        histograms = concat_histogram(histograms)
+        data.append({'name': name, 'feature': histograms.tolist()})
     doc.insert_many(data)
     print '(%s)\tProcess done. -- %fs --' % (os.getpid(), time.time() - process_start)
 

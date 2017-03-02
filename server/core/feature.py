@@ -9,7 +9,7 @@ from core.saliency_cut import cut
 from utils.cv2helper import try_load
 
 
-def get_feature(img, dictionary):
+def get_histograms(img, dictionary):
     image = try_load(img)
 
     fg, bg, fg_area, bg_area = cut(image)
@@ -17,7 +17,11 @@ def get_feature(img, dictionary):
     b_h, b_s, b_lbp = base_hist(bg, lbp_weight=2, useless_area=fg_area)
     sift_hist = sift_count(fg, dictionary)
 
-    return np.vstack((f_h, f_s, f_lbp, sift_hist, b_h, b_s, b_lbp)).T[0]
+    return f_h, f_s, f_lbp, sift_hist, b_h, b_s, b_lbp
+
+
+def concat_histogram(histograms):
+    return np.vstack(histograms).T[0]
 
 
 def base_hist(image, lbp_weight=1, useless_area=0):
