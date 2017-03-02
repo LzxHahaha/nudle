@@ -84,7 +84,9 @@ export default class Home extends React.Component {
       return null;
     }
 
-    this.setState({searching: true, display: []});
+    this.waitChart();
+    await this.setState({searching: true, display: []});
+
     let result = null;
     try {
       if (isUrl) {
@@ -107,6 +109,7 @@ export default class Home extends React.Component {
     }
     finally {
       this.setState({ searching: false });
+      this.chart.hideLoading();
     }
   };
 
@@ -142,9 +145,28 @@ export default class Home extends React.Component {
       series: [{
         name: histName,
         type: 'bar',
+        itemStyle: {
+          normal: {
+            color: '#3B85F7'
+          }
+        },
+        animationDelay: idx => idx * 10,
         data
       }]
     });
+  };
+
+  waitChart = () => {
+    if (this.histograms) {
+      this.histograms = null;
+    }
+    if (this.chart) {
+      this.chart.clear();
+      this.chart.setOption({
+        backgroundColor: '#E5E5E5'
+      });
+      this.chart.showLoading();
+    }
   };
 
   render() {
@@ -184,7 +206,7 @@ export default class Home extends React.Component {
                 <h3>输入图片信息</h3>
                 <div className={styles.inputImageView}>
                   <img src={sourceImage} className={styles.inputImage} />
-                  <div className={styles.inputHistogramBox}  id="histContainer">
+                  <div className={styles.inputHistogramBox} id="histContainer">
                     <p style={{textAlign: 'center'}}>生成中...</p>
                   </div>
                   {
