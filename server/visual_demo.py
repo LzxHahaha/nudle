@@ -8,21 +8,19 @@ from skimage.feature import local_binary_pattern
 from core.feature import base_hist, sift_count
 from core.saliency_cut import cut
 from core.sift import sift
+from utils.cv2helper import try_load
 from utils.mongo import get_db
 
 
 def test(img_path, dict_name):
-    origin_image = cv2.imread(img_path)
-    image = origin_image.copy()
+    image = try_load(img_path)
 
     # 显示前景+背景切割后的SIFT特征点
     f, b, f_area, b_area = cut(image)
     kp_f, desc_f = sift(f)
-    kp_b, desc_b = sift(b)
     fg_sift = cv2.drawKeypoints(f, kp_f, flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
-    bg_sift = cv2.drawKeypoints(b, kp_b, flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
     cv2.imshow('foreground-sift', fg_sift)
-    cv2.imshow('background-sift', bg_sift)
+    cv2.imshow('background', b)
 
     # 显示LBP图像
     gray_fg = cv2.cvtColor(f, cv2.COLOR_BGR2GRAY)
@@ -51,7 +49,6 @@ def test(img_path, dict_name):
         plt.figure(i)
         plt.title(names[i])
         plt.bar(np.arange(len(data[i])), data[i])
-        print '%s count: %d' % (names[i], int(np.sum(data[i])))
 
     plt.show()
     cv2.waitKey(0)
