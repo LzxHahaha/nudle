@@ -72,6 +72,8 @@ def upload_search():
         })
     except pymongo.errors.ServerSelectionTimeoutError:
         return failed(504, 'Database Connect time out.')
+    except IOError:
+        return failed(403, 'Unknown file type.')
     except Exception:
         return error(500)
 
@@ -100,6 +102,8 @@ def url_search():
         })
     except pymongo.errors.ServerSelectionTimeoutError:
         return failed(504, 'Database Connect time out.')
+    except IOError:
+        return failed(403, 'Unknown file type.')
     except Exception:
         return error(500)
 
