@@ -122,6 +122,7 @@
     position: relative;
     display: flex;
     flex-direction: row;
+    transition: 0.5s;
 }
 
 .inputImage {
@@ -146,6 +147,6 @@
 
 .histSelector {
     position: absolute;
-    right: 10px;
+    right: 20px;
     bottom: 15px;
 }

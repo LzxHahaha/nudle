@@ -17,12 +17,12 @@ from utils.json import success, failed, error
 import config
 from utils.mongo import get_db
 
+app = Flask(__name__)
+
 if config.DEV:
     print '==========================\n*  Development mode: ON  *\n=========================='
-
-app = Flask(__name__)
-# 允许API跨域
-CORS(app, resources={r"/api/*": {"origins": "*"}})
+    # 仅DEV下允许API跨域
+    CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 
 @app.route('/')
