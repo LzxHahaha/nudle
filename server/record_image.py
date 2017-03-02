@@ -10,7 +10,7 @@ from core.feature import get_feature
 
 
 def record(paths, lib_dict, lib_name):
-    print '(%s)\tProcessing, mission count: %d' % (os.getpid(), len(paths))
+    print '(%s)\tProcessing: %d tasks' % (os.getpid(), len(paths))
     doc = mongo.get_db()['images_' + lib_name]
     data = []
     process_start = time.time()

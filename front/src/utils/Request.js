@@ -2,7 +2,7 @@
  * Created by LzxHahaha on 2017/1/18.
  */
 
-import * as URI from 'urijs';
+import URI from 'urijs';
 
 const HOST = process.env.NODE_ENV === 'production' ? '/' : 'http://localhost:5000/';
 
@@ -16,11 +16,15 @@ export default class Request {
   }
 
   static async request(url, method, data) {
-    url = HOST + url;
+    let requestURL = HOST + url;
 
     let body = undefined;
     if (method === 'GET') {
-      url = new URI(url).query(data).toString();
+      if (data) {
+        const uri = new URI(requestURL);
+        uri.query(data);
+        requestURL = uri.toString();
+      }
     }
     else if (method === 'POST') {
       body = new FormData();
@@ -36,7 +40,7 @@ export default class Request {
       'Accept': 'application/json'
     };
 
-    const res = await fetch(url, {
+    const res = await fetch(requestURL, {
       method,
       headers,
       body
@@ -58,6 +62,7 @@ export default class Request {
 }
 
 Request.URLs = {
+  libraries: 'api/libraries',
   searchUpload: 'api/search/upload',
   searchUrl: 'api/search/url'
 };

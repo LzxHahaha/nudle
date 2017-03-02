@@ -10,11 +10,6 @@ import ResponseImage from '../components/ResponseImage';
 
 import Request from '../utils/Request';
 
-const LIBRARYS = [
-  {label: 'VOC 2006', value: 'voc2006'},
-  {label: 'THUR15000', value: 'thur15000'}
-];
-
 export default class Home extends React.Component {
   constructor(props) {
     super(props);
@@ -26,7 +21,8 @@ export default class Home extends React.Component {
       sourceImage: '',
       display: [],
       feature: [],
-      library: LIBRARYS[0].value,
+      libraries: [],
+      chooseLibrary: null,
       searchTime: 0
     };
 
@@ -37,22 +33,35 @@ export default class Home extends React.Component {
     this.SIFTCount = 0
   }
 
+  async componentWillMount() {
+    try {
+      const { libraries } = await Request.get(Request.URLs.libraries);
+      this.setState({
+        libraries,
+        chooseLibrary: libraries[0]
+      });
+    }
+    catch (err) {
+      alert(err.message);
+    }
+  }
+
   async searchUrl() {
     return await Request.post(Request.URLs.searchUrl, {
       url: this.state.searchText,
-      library: this.state.library
+      library: this.state.chooseLibrary
     });
   }
 
   async searchUpload() {
     return await Request.post(Request.URLs.searchUpload, {
       image: this.selectedImage,
-      library: this.state.library
+      library: this.state.chooseLibrary
     });
   }
 
   onLibraryChange = e => {
-    this.setState({ library: e.target.value });
+    this.setState({ chooseLibrary: e.target.value });
   };
 
   onSearchTextChange = (e) => {
@@ -66,6 +75,10 @@ export default class Home extends React.Component {
   };
 
   onSearchPress = async (isUrl) => {
+    if (!this.state.chooseLibrary) {
+      return null;
+    }
+
     this.setState({searching: true, display: [], feature: []});
     let result = null;
     try {
@@ -78,7 +91,7 @@ export default class Home extends React.Component {
         result = await this.searchUpload();
       }
 
-      this.searchLibrary = this.state.library;
+      this.searchLibrary = this.state.chooseLibrary;
       this.SIFTCount = result.feature.length - 2 * (64 + 16 + 256);
       await this.setState({ display: result.list, feature: result.feature, searchTime: result.search_time });
       this.renderAllHistogram(result.feature);
@@ -138,7 +151,7 @@ export default class Home extends React.Component {
   }
 
   render() {
-    const { searching, display, searchText, sourceImage, feature, searchTime } = this.state;
+    const { libraries, searching, display, searchText, sourceImage, feature, searchTime } = this.state;
 
     return (
       <div className={styles.container}>
@@ -149,7 +162,7 @@ export default class Home extends React.Component {
           <div className={styles.searchBox}>
             <select onChange={this.onLibraryChange} className={styles.libraryBox}>
               {
-                LIBRARYS.map(el => <option value={el.value}>{el.label}</option>)
+                libraries.map(el => <option value={el}>{el.toUpperCase()}</option>)
               }
             </select>
             <div className={styles.searchInputView}>

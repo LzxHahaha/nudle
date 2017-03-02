@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "webpack-dev-server --devtool eval --progress --colors --hot --content-base build",
-    "deploy": "set NODE_ENV=production&&webpack --config webpack.production.config.js --display-modules --sort-modules-by size"
+    "deploy": "webpack --config webpack.production.config.js --display-modules --sort-modules-by size"
   },
   "author": "LzxHahaha",
   "license": "MIT",

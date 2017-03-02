@@ -10,11 +10,12 @@ import base64
 from StringIO import StringIO
 import time
 import pymongo.errors
+import re
 
 from core.search import search
 from utils.json import success, failed, error
 import config
-
+from utils.mongo import get_db
 
 if config.DEV:
     print '==========================\n*  Development mode: ON  *\n=========================='
@@ -29,9 +30,16 @@ def hello_world():
     return render_template('index.html')
 
 
-@app.route('/test')
-def test_page():
-    return 'Hello world!'
+@app.route('/api/libraries', methods=['GET'])
+def get_all_libraries():
+    db = get_db()
+    names = db.collection_names()
+    res = []
+    for name in names:
+        lib_name = re.findall(r"images_(.+)", name)
+        if len(lib_name) == 1:
+            res.append(lib_name[0])
+    return success({'libraries': res})
 
 
 @app.route('/api/search/upload', methods=['POST'])
