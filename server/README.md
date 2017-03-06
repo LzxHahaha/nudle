@@ -38,6 +38,12 @@
 $ <Anaconda_path>/python ./train.py -l [library name]
 ```
 
+### 可视化特征
+
+> 仅用于测试。
+
+在完成训练后，执行`python ./visual_demo -v [字典名称] -i [图片路径]`即可查看图片的前景、背景以及各个统计直方图
+
 ### 导入数据
 
 > 此步骤约2秒处理一张图片
