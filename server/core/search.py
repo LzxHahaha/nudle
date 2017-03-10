@@ -5,8 +5,18 @@ import cv2
 from core.feature import get_histograms, concat_histogram
 from utils.mongo import get_db
 
+HIST_NAMES = [
+    'foreground-h',
+    'foreground-s',
+    'foreground-lbp',
+    'sift-statistics',
+    'background-h',
+    'background-s',
+    'background-lbp'
+]
 
-def search(image, library):
+
+def search(image, library, size=20):
     if image is None:
         raise Exception('Image can not be None.')
 
@@ -38,14 +48,10 @@ def search(image, library):
         distances.append(d)
 
     sort = np.argsort(np.array(distances))
-    result = [{'name': images_names[i], 'distance': distances[i]} for i in sort]
+    result = [{'name': images_names[sort[i]], 'distance': distances[sort[i]]} for i in range(size)]
 
-    return result, {
-        'foreground-h': input_hist[0].T[0].tolist(),
-        'foreground-s': input_hist[1].T[0].tolist(),
-        'foreground-lbp': input_hist[2].T[0].tolist(),
-        'sift-statistics': input_hist[3].T[0].tolist(),
-        'background-h': input_hist[4].T[0].tolist(),
-        'background-s': input_hist[5].T[0].tolist(),
-        'background-lbp': input_hist[6].T[0].tolist()
-    }
+    histograms = {}
+    for i in range(len(HIST_NAMES)):
+        histograms[HIST_NAMES[i]] = input_hist[i].T[0].tolist()
+
+    return result, histograms

@@ -62,11 +62,11 @@ def upload_search():
 
         # 查找
         start_time = time.time()
-        result, histograms = search(image, library)
+        result, histograms = search(image, library, size)
         search_time = time.time() - start_time
 
         return success({
-            'list': result[:size],
+            'list': result,
             'histograms': histograms,
             'search_time': search_time
         })
@@ -92,11 +92,11 @@ def url_search():
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
         start_time = time.time()
-        result, histograms = search(image, library)
+        result, histograms = search(image, library, size)
         search_time = time.time() - start_time
 
         return success({
-            'list': result[:size],
+            'list': result,
             'histograms': histograms,
             'search_time': search_time
         })
