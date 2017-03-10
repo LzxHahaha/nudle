@@ -13,7 +13,7 @@ SEGMENT_STEP = 100
 
 def record(paths, lib_dict, lib_name):
     print '(%s)\tProcessing...' % os.getpid()
-    doc = mongo.get_db()['images_%s_non_cut' % lib]
+    doc = mongo.get_db()['images_%s_non_cut' % lib_name]
     data = []
     for (full_path, name) in paths:
         hist, feature = get_feature(full_path, lib_dict)

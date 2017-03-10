@@ -18,10 +18,8 @@ def search(image, library):
         raise Exception('No library named %s.' % library)
     voc = np.array(dictionary['dictionary'])
 
-    collection = 'images_' + library
+    collection = 'images_' + library + '_non_cut'
     images = db[collection]
-
-    # TODO: split image
 
     hist, features = get_feature(image, voc)
     input_feature = np.vstack((hist, features))
