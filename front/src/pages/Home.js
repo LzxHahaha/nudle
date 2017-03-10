@@ -13,7 +13,8 @@ import Request from '../utils/Request';
 
 const HIST_NAMES = [
   'foreground-h', 'foreground-s', 'foreground-lbp', 'sift-statistics',
-  'background-h', 'background-s', 'background-lbp'];
+  'background-h', 'background-s', 'background-lbp'
+];
 
 export default class Home extends React.Component {
   constructor(props) {

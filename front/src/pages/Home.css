@@ -53,6 +53,7 @@
     outline: none;
     padding: 0 5px;
     transition: 0.5s;
+    max-width: 100px;
 }
 
 .libraryBox:active, .libraryBox:focus {
