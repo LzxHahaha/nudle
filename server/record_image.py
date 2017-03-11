@@ -2,22 +2,26 @@
 import argparse
 import os
 import time
+import traceback
 from multiprocessing import Manager, Pool, cpu_count
 
 import utils.mongo as mongo
 from utils.format_print import datetime_print
-from core.feature import get_histograms, concat_histogram
+from core.feature import get_histograms
 
 
 def record(paths, lib_dict, lib_name):
+    process_start = time.time()
     print '(%s)\tProcessing: %d tasks' % (os.getpid(), len(paths))
     doc = mongo.get_db()['images_' + lib_name]
     data = []
-    process_start = time.time()
     for (full_path, name) in paths:
-        histograms = get_histograms(full_path, lib_dict)
-        histograms = concat_histogram(histograms)
-        data.append({'name': name, 'feature': histograms.tolist()})
+        try:
+            histograms = get_histograms(full_path, lib_dict)
+            histograms = [i.tolist() for i in histograms]
+            data.append({'name': name, 'feature': histograms})
+        except Exception:
+            print '(%s)\t[%s]\n%s' % (os.getpid(), full_path, traceback.format_exc())
     doc.insert_many(data)
     print '(%s)\tProcess done. -- %fs --' % (os.getpid(), time.time() - process_start)
 

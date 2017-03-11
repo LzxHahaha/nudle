@@ -4,9 +4,8 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 from skimage.feature import local_binary_pattern
-import time
 
-from core.feature import base_hist, sift_count
+from core.feature import base_hist, sift_count, HIST_NAMES
 from core.saliency_cut import cut
 from core.sift import sift
 from utils.cv2helper import try_load
@@ -43,19 +42,17 @@ def test(img_path, dict_name):
 
     # 提取特征
     print 'Get image feature...'
-    f_h, f_s, f_lbp = base_hist(f, lbp_weight=3, useless_area=b_area)
-    b_h, b_s, b_lbp = base_hist(b, lbp_weight=2, useless_area=f_area)
+    f_h, f_s, f_lbp = base_hist(f, b_area)
+    b_h, b_s, b_lbp = base_hist(b, f_area)
     sift_hist = sift_count(f, np.array(dictionary['dictionary']))
 
-    names = ['foreground-h', 'foreground-s', 'foreground-lbp', 'sift-statistics',
-             'background-h', 'background-s', 'background-lbp']
     data = [f_h, f_s, f_lbp, sift_hist, b_h, b_s, b_lbp]
-    for i in range(len(names)):
+    for i in range(len(HIST_NAMES)):
         plt.figure(i)
-        plt.title(names[i])
+        plt.title(HIST_NAMES[i])
         plt.bar(np.arange(len(data[i])), data[i])
 
-    print 'Biu!'
+    print 'Done!'
     plt.show()
     cv2.waitKey(0)
     cv2.destroyAllWindows()
@@ -68,6 +65,4 @@ if __name__ == '__main__':
     # 读取参数
     params = parser.parse_args()
     print 'Start...'
-    start = time.time()
     test(params.image, params.dict)
-    print 'All done. %f' % time.time() - start
