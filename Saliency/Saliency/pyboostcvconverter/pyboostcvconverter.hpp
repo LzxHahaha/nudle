@@ -1,12 +1,3 @@
-/*
- * CVBoostConverter.hpp
- *
- *  Created on: Mar 20, 2014
- *      Author: Gregory Kramida
- *   Copyright: (c) 2014 Gregory Kramida
- *     License: MIT
- */
-
 #ifndef CVBOOSTCONVERTER_HPP_
 #define CVBOOSTCONVERTER_HPP_
 

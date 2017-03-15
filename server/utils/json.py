@@ -24,7 +24,7 @@ def failed(code, message='error'):
 def error(code):
     if DEV:
         stack_info = traceback.format_exc()
-        print stack_info
+        print(stack_info)
         data = {
             'code': code,
             'message': stack_info

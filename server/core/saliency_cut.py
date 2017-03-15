@@ -1,12 +1,12 @@
 # coding=utf-8
 
 import cv2
-import saliency_rc_cut
 import numpy as np
+from saliency_cut import rc_cut
 
 
 def cut(image):
-    mask = saliency_rc_cut.cut(image)
+    mask = rc_cut(image)
     if mask is None:
         foreground = image
         background = None

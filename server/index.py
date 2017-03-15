@@ -20,7 +20,7 @@ from utils.mongo import get_db
 app = Flask(__name__)
 
 if config.DEV:
-    print '==========================\n*  Development mode: ON  *\n=========================='
+    print('==========================\n*  Development mode: ON  *\n==========================')
     # 仅DEV下允许API跨域
     CORS(app, resources={r"/api/*": {"origins": "*"}})
 
@@ -110,5 +110,5 @@ def url_search():
 
 if __name__ == '__main__':
     if not config.DEV:
-        print 'WARNING: Now is dev mode, do NOT use it in the production environment.'
+        print('WARNING: Now is dev mode, do NOT use it in the production environment.')
     app.run()

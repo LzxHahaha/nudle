@@ -4,7 +4,7 @@ import cv2
 from utils.cv2helper import try_load
 
 
-cv2sift = cv2.SIFT()
+cv2sift = cv2.xfeatures2d.SIFT_create()
 
 
 def sift(img):

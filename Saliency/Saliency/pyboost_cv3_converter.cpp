@@ -1,19 +1,12 @@
-/*
- * CV2BoostConverter.cpp
- *
- *  Created on: May 21, 2015
- *      Author: Gregory Kramida
- *   Copyright: 2015 Gregory Kramida
- */
 #define NO_IMPORT_ARRAY
 #define PY_ARRAY_UNIQUE_SYMBOL pbcvt_ARRAY_API
 #include "pyboostcvconverter/pyboostcvconverter.hpp"
-#if CV_VERSION_EPOCH == 2 || (!defined CV_VERSION_EPOCH && CV_VERSION_MAJOR == 2)
+#if CV_VERSION_MAJOR == 3
 namespace pbcvt
 {
 	using namespace cv;
-
 	//===================   ERROR HANDLING     =========================================================
+
 	static int failmsg(const char *fmt, ...)
 	{
 		char str[1000];
@@ -41,7 +34,6 @@ namespace pbcvt
 	}
 
 	//===================   THREADING     ==============================================================
-
 	class PyAllowThreads
 	{
 	public:
@@ -70,65 +62,92 @@ namespace pbcvt
 		PyGILState_STATE _state;
 	};
 
-	//===================   NUMPY ALLOCATOR FOR OPENCV     =============================================
+	enum
+	{
+		ARG_NONE = 0, ARG_MAT = 1, ARG_SCALAR = 2
+	};
+
 	class NumpyAllocator :
 		public MatAllocator
 	{
 	public:
 		NumpyAllocator()
-		{}
+		{
+			stdAllocator = Mat::getStdAllocator();
+		}
 		~NumpyAllocator()
 		{}
 
-		void allocate(int dims, const int* sizes, int type, int*& refcount,
-			uchar*& datastart, uchar*& data, size_t* step)
+		UMatData* allocate(PyObject* o, int dims, const int* sizes, int type,
+			size_t* step) const
 		{
+			UMatData* u = new UMatData(this);
+			u->data = u->origdata = (uchar*)PyArray_DATA((PyArrayObject*)o);
+			npy_intp* _strides = PyArray_STRIDES((PyArrayObject*)o);
+			for (int i = 0; i < dims - 1; i++)
+				step[i] = (size_t)_strides[i];
+			step[dims - 1] = CV_ELEM_SIZE(type);
+			u->size = sizes[0] * step[0];
+			u->userdata = o;
+			return u;
+		}
+
+		UMatData* allocate(int dims0, const int* sizes, int type, void* data,
+			size_t* step, int flags, UMatUsageFlags usageFlags) const
+		{
+			if (data != 0)
+			{
+				CV_Error(Error::StsAssert, "The data should normally be NULL!");
+				// probably this is safe to do in such extreme case
+				return stdAllocator->allocate(dims0, sizes, type, data, step, flags,
+					usageFlags);
+			}
 			PyEnsureGIL gil;
 
 			int depth = CV_MAT_DEPTH(type);
 			int cn = CV_MAT_CN(type);
 			const int f = (int)(sizeof(size_t) / 8);
-			int typenum = depth == CV_8U ? NPY_UBYTE : depth == CV_8S ? NPY_BYTE :
+			int typenum =
+				depth == CV_8U ? NPY_UBYTE :
+				depth == CV_8S ? NPY_BYTE :
 				depth == CV_16U ? NPY_USHORT :
 				depth == CV_16S ? NPY_SHORT :
 				depth == CV_32S ? NPY_INT :
 				depth == CV_32F ? NPY_FLOAT :
-				depth == CV_64F ? NPY_DOUBLE : f * NPY_ULONGLONG + (f ^ 1) * NPY_UINT;
-			int i;
-			npy_intp _sizes[CV_MAX_DIM + 1];
+				depth == CV_64F ?
+				NPY_DOUBLE :
+				f * NPY_ULONGLONG + (f ^ 1) * NPY_UINT;
+			int i, dims = dims0;
+			cv::AutoBuffer<npy_intp> _sizes(dims + 1);
 			for (i = 0; i < dims; i++)
-			{
 				_sizes[i] = sizes[i];
-			}
-
 			if (cn > 1)
-			{
 				_sizes[dims++] = cn;
-			}
-
 			PyObject* o = PyArray_SimpleNew(dims, _sizes, typenum);
-
 			if (!o)
-			{
-				CV_Error_(CV_StsError,
-					("The numpy array of typenum=%d, ndims=%d can not be created", typenum, dims));
-			}
-			refcount = refcountFromPyObject(o);
-			npy_intp* _strides = PyArray_STRIDES((PyArrayObject*)o);
-			for (i = 0; i < dims - (cn > 1); i++)
-				step[i] = (size_t)_strides[i];
-			datastart = data = (uchar*)PyArray_DATA((PyArrayObject*)o);
+				CV_Error_(Error::StsError,
+				("The numpy array of typenum=%d, ndims=%d can not be created", typenum, dims));
+			return allocate(o, dims0, sizes, type, step);
 		}
 
-		void deallocate(int* refcount, uchar*, uchar*)
+		bool allocate(UMatData* u, int accessFlags,
+			UMatUsageFlags usageFlags) const
 		{
-			PyEnsureGIL gil;
-			if (!refcount)
-				return;
-			PyObject* o = pyObjectFromRefcount(refcount);
-			Py_INCREF(o);
-			Py_DECREF(o);
+			return stdAllocator->allocate(u, accessFlags, usageFlags);
 		}
+
+		void deallocate(UMatData* u) const
+		{
+			if (u)
+			{
+				PyEnsureGIL gil;
+				PyObject* o = (PyObject*)u->userdata;
+				Py_XDECREF(o);
+				delete u;
+			}
+		}
+
+		const MatAllocator* stdAllocator;
 	};
 
 	//===================   ALLOCATOR INITIALIZTION   ==================================================
@@ -140,20 +159,23 @@ namespace pbcvt
 	{
 		if (!m.data)
 			Py_RETURN_NONE;
-		Mat temp, *p = (Mat*)&m;
-		if (!p->refcount || p->allocator != &g_numpyAllocator)
+		Mat temp,
+			*p = (Mat*)&m;
+		if (!p->u || p->allocator != &g_numpyAllocator)
 		{
 			temp.allocator = &g_numpyAllocator;
 			ERRWRAP2(m.copyTo(temp));
 			p = &temp;
 		}
-		p->addref();
-		return pyObjectFromRefcount(p->refcount);
+		PyObject* o = (PyObject*)p->u->userdata;
+		Py_INCREF(o);
+		return o;
 	}
 
 	Mat fromNDArrayToMat(PyObject* o)
 	{
 		cv::Mat m;
+		bool allowND = true;
 		if (!PyArray_Check(o))
 		{
 			failmsg("argument is not a numpy array");
@@ -203,6 +225,7 @@ namespace pbcvt
 					m.allocator = &g_numpyAllocator;
 				return m;
 			}
+
 			int size[CV_MAX_DIM + 1];
 			size_t step[CV_MAX_DIM + 1];
 			size_t elemsize = CV_ELEM_SIZE1(type);
@@ -223,6 +246,7 @@ namespace pbcvt
 
 			if (ismultichannel && _strides[1] != (npy_intp)elemsize * _sizes[2])
 				needcopy = true;
+
 			if (needcopy)
 			{
 
@@ -253,23 +277,29 @@ namespace pbcvt
 				step[ndims] = elemsize;
 				ndims++;
 			}
+
 			if (ismultichannel)
 			{
 				ndims--;
 				type |= CV_MAKETYPE(0, size[2]);
 			}
 
-			m = Mat(ndims, size, type, PyArray_DATA(oarr), step);
-
-			if (m.data)
+			if (ndims > 2 && !allowND)
 			{
-				m.refcount = refcountFromPyObject(o);
+				failmsg("%s has more than 2 dimensions");
+			}
+			else
+			{
+
+				m = Mat(ndims, size, type, PyArray_DATA(oarr), step);
+				m.u = g_numpyAllocator.allocate(o, ndims, size, type, step);
+				m.addref();
+
 				if (!needcopy)
 				{
-					m.addref(); // protect the original numpy array from deallocation
-								// (since Mat destructor will decrement the reference counter)
+					Py_INCREF(o);
 				}
-			};
+			}
 			m.allocator = &g_numpyAllocator;
 		}
 		return m;
@@ -281,28 +311,28 @@ namespace pbcvt
 	{
 		if (!m.data)
 			Py_RETURN_NONE;
-		Mat temp, *p = (Mat*)&m;
-		if (!p->refcount || p->allocator != &g_numpyAllocator)
+		Mat temp,
+			*p = (Mat*)&m;
+		if (!p->u || p->allocator != &g_numpyAllocator)
 		{
 			temp.allocator = &g_numpyAllocator;
 			ERRWRAP2(m.copyTo(temp));
 			p = &temp;
 		}
-		p->addref();
-		return pyObjectFromRefcount(p->refcount);
+		PyObject* o = (PyObject*)p->u->userdata;
+		Py_INCREF(o);
+		return o;
 	}
 
 	matFromNDArrayBoostConverter::matFromNDArrayBoostConverter()
 	{
-		boost::python::converter::registry::push_back(matFromNDArrayBoostConverter::convertible,
-			matFromNDArrayBoostConverter::construct,
+		boost::python::converter::registry::push_back(convertible, construct,
 			boost::python::type_id<Mat>());
 	}
 
 	/// @brief Check if PyObject is an array and can be converted to OpenCV matrix.
 	void* matFromNDArrayBoostConverter::convertible(PyObject* object)
 	{
-
 		if (!PyArray_Check(object))
 		{
 			return NULL;
@@ -327,7 +357,6 @@ namespace pbcvt
 		{
 			return NULL; //too many dimensions
 		}
-
 		return object;
 	}
 
@@ -335,7 +364,6 @@ namespace pbcvt
 	void matFromNDArrayBoostConverter::construct(PyObject* object,
 		boost::python::converter::rvalue_from_python_stage1_data* data)
 	{
-
 		namespace python = boost::python;
 		// Object is a borrowed reference, so create a handle indicting it is
 		// borrowed for proper reference counting.
@@ -437,21 +465,11 @@ namespace pbcvt
 		}
 
 		cv::Mat* m = new (storage) cv::Mat(ndims, size, type, PyArray_DATA(oarr), step);
-		if (m->data)
-		{
-			m->refcount = refcountFromPyObject(object);
-			if (!needcopy)
-			{
-				m->addref(); // protect the original numpy array from deallocation
-							 // (since Mat destructor will decrement the reference counter)
-			}
-		};
-
+		m->u = g_numpyAllocator.allocate(object, ndims, size, type, step);
 		m->allocator = &g_numpyAllocator;
+		m->addref();
 		data->convertible = storage;
 	}
 
-} //end namespace pbcvt
-
+}			//end namespace pbcvt
 #endif
-

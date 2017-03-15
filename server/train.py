@@ -15,12 +15,12 @@ from utils.format_print import datetime_print
 
 
 def get_features(paths):
-    print '(%s)\tProcessing...' % os.getpid()
+    print('(%s)\tProcessing...' % os.getpid())
     kp, res = sift(paths[0])
     for i in paths[1:]:
         kp, d = sift(i)
         res = np.vstack((res, d))
-    print '(%s)\tProcess done.' % os.getpid()
+    print('(%s)\tProcess done.' % os.getpid())
     return res
 
 
@@ -64,8 +64,7 @@ if __name__ == '__main__':
     old_lib = dictionaries.find_one({'library': lib})
     if old_lib is not None:
         while 1:
-            confirm = raw_input('Already have dictionary of library [%s], '
-                                'sure you want to overwrite it? [y/n]: ' % lib)
+            confirm = input('Already have dictionary of library [%s], sure you want to overwrite it? [y/n]: ' % lib)
             if confirm.lower() == 'y':
                 break
             elif confirm.lower() == 'n':
