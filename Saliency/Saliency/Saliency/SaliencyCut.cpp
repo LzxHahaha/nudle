@@ -65,18 +65,19 @@ SaliencyCut::~SaliencyCut()
 		delete _graph;
 }
 
-Mat SaliencyCut::cut(string path)
+Mat SaliencyCut::Cut(string path)
 {
-	Mat img3f = imread(path);
-	CV_Assert_(img3f.data != NULL, ("Can't load image %s\n", _S(path)));
-	return SaliencyCut::cut(img3f);
+	Mat img = imread(path);
+	CV_Assert_(img.data != NULL, ("Can't load image %s\n", _S(path)));
+	return SaliencyCut::Cut(img);
 }
 
-Mat SaliencyCut::cut(Mat img3f)
+Mat SaliencyCut::Cut(Mat img)
 {
-	Mat sal;
-	img3f.convertTo(img3f, CV_32FC3, 1.0 / 255);
-	sal = SaliencyRC::GetRC(img3f);
+	img.convertTo(img, CV_32FC3, 1.0 / 255);
+	Mat sal = SaliencyRC::GetRC(img);
+	//imshow("map", sal);
+	//waitKey(1);
 
 	Mat cutMat;
 	float t = 0.9f;
@@ -85,7 +86,7 @@ Mat SaliencyCut::cut(Mat img3f)
 	normalize(sal, sal, 0, 1, NORM_MINMAX);
 	while (cutMat.empty() && maxIt--)
 	{
-		cutMat = SaliencyCut::CutObjs(img3f, sal, 0.1f, t);
+		cutMat = SaliencyCut::CutObjs(img, sal, 0.1f, t);
 		t -= 0.2f;
 	}
 	return cutMat;

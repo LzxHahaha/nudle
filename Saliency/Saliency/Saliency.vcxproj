@@ -170,6 +170,7 @@
   <ItemGroup>
     <ClInclude Include="Basic\Cv.h" />
     <ClInclude Include="Basic\Definition.h" />
+    <ClInclude Include="dllexport.h" />
     <ClInclude Include="pyboostcvconverter\pyboostcvconverter.hpp" />
     <ClInclude Include="Cluster\GMM.h" />
     <ClInclude Include="Saliency\SaliencyCut.h" />
@@ -184,6 +185,7 @@
     <ClCompile Include="Basic\Cv.cpp" />
     <ClCompile Include="Basic\Definition.cpp" />
     <ClCompile Include="Cluster\GMM.cpp" />
+    <ClCompile Include="dllexport.cpp" />
     <ClCompile Include="pyboost_cv3_converter.cpp" />
     <ClCompile Include="python_module.cpp" />
     <ClCompile Include="Saliency\SaliencyRC.cpp" />

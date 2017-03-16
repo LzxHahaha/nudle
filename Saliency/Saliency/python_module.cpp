@@ -12,7 +12,7 @@ namespace pbcvt
 	PyObject *rc_cut(PyObject *input)
 	{
 		auto image = pbcvt::fromNDArrayToMat(input);
-		auto mask = SaliencyCut::cut(image);
+		auto mask = SaliencyCut::Cut(image);
 		return pbcvt::fromMatToNDArray(mask);
 	}
 

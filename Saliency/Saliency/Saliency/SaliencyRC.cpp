@@ -2,14 +2,6 @@
 #include "../Segmentation/EfficientGraphBased/segment-image.h"
 #include <functional>
 
-const char* SaliencyRC::SAL_TYPE_DES[SAL_TYPE_NUM] = {
-	"RC"
-};
-
-const SaliencyRC::GET_SAL_FUNC SaliencyRC::gFuns[SAL_TYPE_NUM] = {
-	GetRC
-};
-
 Mat SaliencyRC::GetRC(CMat &img3f)
 {
 	return GetRC(img3f, 0.4, 50, 200, 0.5);

@@ -16,8 +16,6 @@ struct SaliencyRC
 
 private:
 	static const int SAL_TYPE_NUM = 5;
-	static const char* SAL_TYPE_DES[SAL_TYPE_NUM];
-	static const GET_SAL_FUNC gFuns[SAL_TYPE_NUM];
 
 	static void SmoothSaliency(Mat &sal1f, float delta, const vector<vector<CostfIdx>> &similar);
 	static void SmoothSaliency(CMat &colorNum1i, Mat &sal1f, float delta, const vector<vector<CostfIdx>> &similar);

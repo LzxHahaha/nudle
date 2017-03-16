@@ -48,6 +48,9 @@
     <ClInclude Include="pyboostcvconverter\pyboostcvconverter.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="dllexport.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Cluster\GMM.cpp">
@@ -72,6 +75,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="pyboost_cv3_converter.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="dllexport.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
