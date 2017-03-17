@@ -3,11 +3,9 @@ import cv2
 from flask import Flask, request
 from flask import render_template
 from flask_cors import CORS
-import numpy
-from PIL import Image
+import numpy as np
 from skimage import io
 import base64
-from StringIO import StringIO
 import time
 import pymongo.errors
 import re
@@ -54,11 +52,9 @@ def upload_search():
         image_file = image_file[comma_index + 1:]
         if image_file is None:
             return failed(404, 'Unknown Image')
-        sbuf = StringIO()
-        sbuf.write(base64.b64decode(image_file))
-        image = Image.open(sbuf)
-        image = numpy.array(image)
-        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+        image_data = base64.b64decode(image_file)
+        image_data = np.frombuffer(image_data, np.uint8)
+        image = cv2.imdecode(image_data, 1)
 
         # 查找
         start_time = time.time()

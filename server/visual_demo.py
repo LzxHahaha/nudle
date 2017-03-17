@@ -23,6 +23,7 @@ def test(img_path, dict_name):
     cv2.drawKeypoints(f, kp_f, fg_sift, flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
     cv2.imshow('foreground-sift', fg_sift)
     cv2.imshow('background', b)
+    cv2.waitKey(1)
 
     # 显示LBP图像
     print('LBP...')
@@ -32,6 +33,7 @@ def test(img_path, dict_name):
     bg_lbp = np.uint8(local_binary_pattern(gray_bg, 8 * 3, 3))
     cv2.imshow('foreground-lbp', fg_lbp)
     cv2.imshow('background-lbp', bg_lbp)
+    cv2.waitKey(1)
 
     # 准备字典
     print('Connecting to database...')

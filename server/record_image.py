@@ -1,4 +1,5 @@
 # coding=utf-8
+import cv2
 import argparse
 import os
 import time
@@ -7,6 +8,7 @@ from multiprocessing import Manager, Pool, cpu_count
 
 import utils.mongo as mongo
 from utils.format_print import datetime_print
+from utils.cv2helper import to_jpg
 from core.feature import get_histograms
 
 
@@ -17,7 +19,9 @@ def record(paths, lib_dict, lib_name):
     data = []
     for (full_path, name) in paths:
         try:
-            histograms = get_histograms(full_path, lib_dict)
+            image = cv2.imread(full_path)
+            image = to_jpg(image)
+            histograms = get_histograms(image, lib_dict)
             histograms = [i.tolist() for i in histograms]
             data.append({'name': name, 'feature': histograms})
         except Exception:

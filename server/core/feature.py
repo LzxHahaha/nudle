@@ -70,7 +70,7 @@ def sift_count(image, dictionary):
 def compare_hist(h1, h2):
     distance = 0
     for i in [0, 1, 3, 4, 5]:
-        distance += cv2.compareHist(h1[i], h2[i], cv2.cv.CV_COMP_CHISQR)
-    distance += 3 * cv2.compareHist(h1[2], h2[2], cv2.cv.CV_COMP_CHISQR)
-    distance += 2 * cv2.compareHist(h1[6], h2[6], cv2.cv.CV_COMP_CHISQR)
+        distance += cv2.compareHist(h1[i], h2[i], cv2.HISTCMP_CHISQR)
+    distance += 3 * cv2.compareHist(h1[2], h2[2], cv2.HISTCMP_CHISQR)
+    distance += 2 * cv2.compareHist(h1[6], h2[6], cv2.HISTCMP_CHISQR)
     return distance
