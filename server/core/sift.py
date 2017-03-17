@@ -1,7 +1,7 @@
 # coding=utf-8
 import cv2
 
-from utils.cv2helper import try_load
+from utils.helper import try_load
 
 
 cv2sift = cv2.xfeatures2d.SIFT_create()

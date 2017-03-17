@@ -8,7 +8,8 @@ from skimage.feature import local_binary_pattern
 from core.feature import base_hist, sift_count, HIST_NAMES
 from core.saliency_cut import cut
 from core.sift import sift
-from utils.cv2helper import try_load
+from exceptions import *
+from utils.helper import try_load
 from utils.mongo import get_db
 
 
@@ -41,7 +42,7 @@ def test(img_path, dict_name):
     dictionaries = db.dictionaries
     dictionary = dictionaries.find_one({'library': dict_name})
     if dictionary is None:
-        raise Exception('No library named %s.' % dict_name)
+        raise UnknownLibraryError(dict_name)
 
     # 提取特征
     print('Get image feature...')

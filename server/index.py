@@ -3,15 +3,13 @@ import cv2
 from flask import Flask, request
 from flask import render_template
 from flask_cors import CORS
-import numpy as np
 from skimage import io
-import base64
 import time
-import pymongo.errors
 import re
 
 from core.search import search
-from utils.json import success, failed, error
+from utils.helper import convert_from, error_handler
+from utils.json import success
 import config
 from utils.mongo import get_db
 
@@ -29,6 +27,7 @@ def hello_world():
 
 
 @app.route('/api/libraries', methods=['GET'])
+@error_handler
 def get_all_libraries():
     db = get_db()
     names = db.collection_names()
@@ -41,67 +40,47 @@ def get_all_libraries():
 
 
 @app.route('/api/search/upload', methods=['POST'])
+@error_handler
 def upload_search():
-    try:
-        library = request.form.get('library', 'voc2006')
-        image_file = request.form.get('image', None)
-        size = request.form.get('size', 20)
+    library = request.form.get('library', 'voc2006')
+    image_b64 = request.form.get('image', None)
+    size = request.form.get('size', 20)
 
-        # base64 转码
-        comma_index = image_file.find(',')
-        image_file = image_file[comma_index + 1:]
-        if image_file is None:
-            return failed(404, 'Unknown Image')
-        image_data = base64.b64decode(image_file)
-        image_data = np.frombuffer(image_data, np.uint8)
-        image = cv2.imdecode(image_data, 1)
+    # base64 转码
+    image = convert_from(image_b64)
 
-        # 查找
-        start_time = time.time()
-        result, histograms = search(image, library, size)
-        search_time = time.time() - start_time
+    # 查找
+    start_time = time.time()
+    result, histograms = search(image, library, size)
+    search_time = time.time() - start_time
 
-        return success({
-            'list': result,
-            'histograms': histograms,
-            'search_time': search_time
-        })
-    except pymongo.errors.ServerSelectionTimeoutError:
-        return failed(504, 'Database Connect time out.')
-    except IOError:
-        return failed(403, 'Unknown file type.')
-    except Exception:
-        return error(500)
+    return success({
+        'list': result,
+        'histograms': histograms,
+        'search_time': search_time
+    })
 
 
 @app.route('/api/search/url', methods=['POST'])
+@error_handler
 def url_search():
-    try:
-        library = request.form.get('library', 'voc2006')
-        url = request.form.get('url', None)
-        size = request.form.get('size', 20)
-        if url is None:
-            return failed(404, 'Unknown Image')
+    library = request.form.get('library', 'voc2006')
+    url = request.form.get('url', None)
+    size = request.form.get('size', 20)
 
-        # 下载图片
-        image = io.imread(url)
-        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+    # 下载图片
+    image = io.imread(url)
+    image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
-        start_time = time.time()
-        result, histograms = search(image, library, size)
-        search_time = time.time() - start_time
+    start_time = time.time()
+    result, histograms = search(image, library, size)
+    search_time = time.time() - start_time
 
-        return success({
-            'list': result,
-            'histograms': histograms,
-            'search_time': search_time
-        })
-    except pymongo.errors.ServerSelectionTimeoutError:
-        return failed(504, 'Database Connect time out.')
-    except IOError:
-        return failed(403, 'Unknown file type.')
-    except Exception:
-        return error(500)
+    return success({
+        'list': result,
+        'histograms': histograms,
+        'search_time': search_time
+    })
 
 
 if __name__ == '__main__':

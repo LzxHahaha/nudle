@@ -8,7 +8,7 @@ from multiprocessing import Manager, Pool, cpu_count
 
 import utils.mongo as mongo
 from utils.format_print import datetime_print
-from utils.cv2helper import to_jpg
+from utils.helper import to_jpg
 from core.feature import get_histograms
 
 

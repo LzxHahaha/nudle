@@ -6,7 +6,7 @@ from skimage.feature import local_binary_pattern
 
 from core.sift import sift
 from core.saliency_cut import cut
-from utils.cv2helper import try_load
+from utils.helper import try_load
 
 
 HIST_NAMES = [

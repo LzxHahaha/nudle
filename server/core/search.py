@@ -2,19 +2,20 @@
 import numpy as np
 
 from core.feature import get_histograms, HIST_NAMES, compare_hist
+from exceptions import *
 from utils.mongo import get_db
 
 
 def search(image, library, size=20):
     if image is None:
-        raise Exception('Image can not be None.')
+        raise UnknownImageError('None')
 
     # 准备数据库
     db = get_db()
     dictionaries = db.dictionaries
     dictionary = dictionaries.find_one({'library': library})
     if dictionary is None:
-        raise Exception('No library named %s.' % library)
+        raise UnknownLibraryError(library)
     voc = np.array(dictionary['dictionary'])
 
     collection = 'images_' + library

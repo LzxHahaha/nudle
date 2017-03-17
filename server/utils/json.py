@@ -13,6 +13,7 @@ def success(value):
     return jsonify(data)
 
 
+# 已知错误，直接返回自定的错误信息
 def failed(code, message='error'):
     data = {
         'code': code,
@@ -21,7 +22,8 @@ def failed(code, message='error'):
     return jsonify(data)
 
 
-def error(code):
+# 未知错误，在DEV模式下显示traceback
+def error(code=500):
     if DEV:
         stack_info = traceback.format_exc()
         print(stack_info)
