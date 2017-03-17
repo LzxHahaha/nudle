@@ -74,6 +74,12 @@ export default class Home extends React.Component {
     this.setState({ searchText: e.target.value });
   };
 
+  onSearchTextSubmit = e => {
+    if ((e.keyCode || e.which) === 13) {
+      this.onSearchPress(true);
+    }
+  };
+
   onImageChange = (e) => {
     const image = e.target.files[0];
     this.setState({ image });
@@ -141,7 +147,7 @@ export default class Home extends React.Component {
       yAxis: {
         splitLine: {show: true}
       },
-      animationDurationUpdate: 1200,
+      animationDurationUpdate: 300,
       backgroundColor: '#E5E5E5',
       series: [{
         name: histName,
@@ -191,6 +197,7 @@ export default class Home extends React.Component {
                 placeholder="输入图片URL"
                 onChange={this.onSearchTextChange}
                 value={searchText}
+                onKeyDown={this.onSearchTextSubmit}
               />
             </div>
             <a className={styles.imageButton} onClick={()=>this.modal.show()}>
