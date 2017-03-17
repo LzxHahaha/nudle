@@ -3,15 +3,17 @@ import cv2
 from flask import Flask, request
 from flask import render_template
 from flask_cors import CORS
-from skimage import io
 import time
 import re
+import urllib.request
+import numpy as np
 
 from core.search import search
-from utils.helper import convert_from, error_handler
+from utils.helper import convert_from, error_handler, to_jpg
 from utils.json import success
 import config
 from utils.mongo import get_db
+from exceptions import *
 
 app = Flask(__name__)
 
@@ -68,9 +70,17 @@ def url_search():
     url = request.form.get('url', None)
     size = request.form.get('size', 20)
 
-    # 下载图片
-    image = io.imread(url)
-    image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+    req = urllib.request.Request(url)
+    response = urllib.request.urlopen(req)
+    content_type = response.getheader('Content-Type')
+    image_type = re.match(r"^image/(\w+)$", content_type)
+    if image_type is None:
+        raise UnknownImageError(content_type)
+    image_type = image_type.group(1).lower()
+    image_bytes = response.read()
+    image = cv2.imdecode(np.frombuffer(image_bytes, np.uint8), 1)
+    if image_type not in ['jpg', 'jpeg']:
+        image = to_jpg(image)
 
     start_time = time.time()
     result, histograms = search(image, library, size)
