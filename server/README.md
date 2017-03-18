@@ -6,7 +6,7 @@
 ## 运行
 
 1. 先将需要用到的图片库拷到`/static`目录下，目录名为`lib_图片库名`，
-例如`voc2006`的图片，就放到`/static/lib_voc2006`下
+   例如`voc2006`的图片，就放到`/static/lib_voc2006`下
 
 2. 执行前需要启动MongoDB的服务
 
@@ -15,7 +15,7 @@
 训练分为两个步骤
 
 1. 提取SIFT特征时会开多进程，CPU占用可能会到100%，速度较快（8进程下2140张图片需要1~2分钟）
-1. 进行聚类时内存占用会较大（一张图片大约换算成1M），大约耗时一小时左右
+2. 进行聚类时内存占用会较大（一张图片大约换算成1M），大约耗时一小时左右
 
 ```
 $ python ./train.py -l <library name> -s <step>
@@ -51,4 +51,24 @@ $ python ./index.py
 
 #### 生产环境
 
-**TODO**
+1.  使用pip安装`tornado`和`pycurl`
+1.  在Nginx中添加配置
+    ```
+        server {
+            listen 80;  # 可修改成其他端口
+            server_name cbir;  # 通常设为域名
+            charset utf-8;
+            location / {
+                proxy_pass http://localhost:5000;  # 5000为Python监听的端口，可修改为其他端口
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_pass_header Set-Cookie;
+            }
+        }
+    ```
+1. 将`server/config.py`中的`DEV`设为False
+1. 启动服务器
+    ```
+    $ mongodb                   # 启动MongoDB服务
+    $ python tornado.py <port>  # 端口默认为5000
+    $ nginx                     # 启动Nginx
+    ```
