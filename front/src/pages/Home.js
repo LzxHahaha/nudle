@@ -40,6 +40,7 @@ export default class Home extends React.Component {
       this.forceUpdate();
     };
     this.searchLibrary = '';
+
     this.histograms = null;
     this.chart = null;
   }
@@ -97,6 +98,7 @@ export default class Home extends React.Component {
       return null;
     }
 
+    this.searchLibrary = this.state.chooseLibrary;
     await this.setState({searching: true, display: []});
 
     let result = null;
@@ -110,14 +112,19 @@ export default class Home extends React.Component {
         result = await this.searchUpload();
       }
 
-      this.searchLibrary = this.state.chooseLibrary;
+      this.setState({ display: result.list, searchTime: result.search_time });
+
+      // 更新直方图
       this.histograms = result.histograms;
-      await this.setState({ display: result.list, searchTime: result.search_time });
       this.updateChart(HIST_NAMES[0]);
+
+      // 绘制裁剪图像
+      this.updateCutImage(result.rc_mask, result.height, result.width);
     }
     catch (err) {
       alert(err.message);
       await this.setState({ sourceImage: '' });
+      this.searchLibrary = '';
     }
     finally {
       this.setState({ searching: false });
@@ -127,6 +134,21 @@ export default class Home extends React.Component {
 
   onHistChange = (e) => {
     this.updateChart(e.target.value);
+  };
+
+  onSizeTextChange = e => {
+    const value = parseInt(e.target.value);
+    let size = this.state.size;
+    if (0 < value && value <= 50) {
+      size = value;
+    }
+    else if (value > 50) {
+      size = 50;
+    }
+    else {
+      size = 1;
+    }
+    this.setState({ size });
   };
 
   updateChart = (histName) => {
@@ -152,7 +174,7 @@ export default class Home extends React.Component {
       yAxis: {
         splitLine: {show: true}
       },
-      animationDurationUpdate: 300,
+      animationDurationUpdate: 1000,
       backgroundColor: '#E5E5E5',
       series: [{
         name: histName,
@@ -168,19 +190,49 @@ export default class Home extends React.Component {
     });
   };
 
-  onSizeTextChange = e => {
-    const value = parseInt(e.target.value);
-    let size = this.state.size;
-    if (0 < value && value <= 50) {
-      size = value;
-    }
-    else if (value > 50) {
-      size = 50;
-    }
-    else {
-      size = 1;
-    }
-    this.setState({ size });
+  updateCutImage = (src, height, width) => {
+    const cutImage = new Image();
+    cutImage.onload = () => {
+      this.foregroundCanvas.height = height;
+      this.foregroundCanvas.width = width;
+      this.backgroundCanvas.height = height;
+      this.backgroundCanvas.width = width;
+      const fgctx = this.foregroundCanvas.getContext('2d');
+      const bgctx = this.backgroundCanvas.getContext('2d');
+      fgctx.clearRect(0, 0, width, height);
+      bgctx.clearRect(0, 0, width, height);
+
+      // 画上cut，记下数据
+      bgctx.drawImage(cutImage, 0, 0);
+      const cutData = bgctx.getImageData(0, 0, width, height);
+
+      // 画上原图
+      const source = new Image();
+      source.src = this.state.sourceImage;
+      fgctx.drawImage(source, 0, 0);
+      bgctx.drawImage(source, 0, 0);
+      const fgData = fgctx.getImageData(0, 0, width, height);
+      const bgData = bgctx.getImageData(0, 0, width, height);
+
+      // 计算
+      for (let i = 0; i < cutData.data.length; i += 4) {
+        if (cutData.data[i] === 255 && cutData.data[i + 1] === 255 && cutData.data[i + 2] === 255) {
+          bgData.data[i] = 0;
+          bgData.data[i + 1] = 0;
+          bgData.data[i + 2] = 0;
+          bgData.data[i + 3] = 0;
+        }
+        else if (cutData.data[i] === 0 && cutData.data[i + 1] === 0 && cutData.data[i + 2] === 0) {
+          fgData.data[i] = 0;
+          fgData.data[i + 1] = 0;
+          fgData.data[i + 2] = 0;
+          fgData.data[i + 3] = 0;
+        }
+      }
+      fgctx.putImageData(fgData, 0, 0);
+      bgctx.putImageData(bgData, 0, 0);
+    };
+    cutImage.src = src;
   };
 
   render() {
@@ -195,7 +247,11 @@ export default class Home extends React.Component {
           <div className={styles.searchBox}>
             <select onChange={this.onLibraryChange} className={styles.libraryBox}>
               {
-                libraries.map(el => <option value={el}>{el.toUpperCase()}</option>)
+                libraries && libraries.map((el, index) => (
+                  <option value={el} key={`lib${index}`}>
+                    {el.toUpperCase()}
+                  </option>
+                ))
               }
             </select>
             <div className={styles.searchInputView}>
@@ -226,33 +282,16 @@ export default class Home extends React.Component {
               </p>
             )
           }
+        </div>
 
-          <TabView labels={['搜索结果', '图片详情']}
-                   style={display.length === 0 ? {display: 'none'} : {}}>
+        <div className={styles.row}>
+          <TabView
+            labels={['搜索结果', '图片详情']}
+            style={display.length === 0 ? {display: 'none'} : {}}
+          >
             <div>
               {
-                sourceImage && (
-                  <div className={styles.inputImageView}>
-                    <img src={sourceImage} className={styles.inputImage} />
-                    <div className={styles.inputHistogramBox} id="histContainer">
-                      <p style={{textAlign: 'center'}}>生成中...</p>
-                    </div>
-                    {
-                      !!this.histograms && (
-                        <select onChange={this.onHistChange} className={styles.histSelector}>
-                          {
-                            HIST_NAMES.map(el => (
-                              <option>{el}</option>
-                            ))
-                          }
-                        </select>
-                      )
-                    }
-                  </div>
-                )
-              }
-              {
-                display.length > 0 && (
+                (display.length > 0 && !!this.searchLibrary) && (
                   <div>
                     <div className={styles.searchInfo}>
                       搜索用时：{searchTime}秒<br/>
@@ -274,12 +313,36 @@ export default class Home extends React.Component {
                   </div>
                 )
               }
-          </div>
-          <div>
-            <p>
-              TODO: 显示前景和背景
-            </p>
-          </div>
+            </div>
+            {
+              !!sourceImage ? (
+                <div>
+                  <div className={styles.inputImageView}>
+                    <div className={styles.inputHistogramBox} id="histContainer">
+                      <p style={{textAlign: 'center'}}>生成中...</p>
+                    </div>
+                    {
+                      !!this.histograms && (
+                        <select onChange={this.onHistChange} className={styles.histSelector}>
+                          {
+                            HIST_NAMES.map((el, index) => (
+                              <option key={`hist${index}`}>{el}</option>
+                            ))
+                          }
+                        </select>
+                      )
+                    }
+                  </div>
+                  <div className={styles.sourceImageContainer}>
+                    <img src={sourceImage} />
+                    <canvas ref={ref=>this.foregroundCanvas=ref}>
+                    </canvas>
+                    <canvas ref={ref=>this.backgroundCanvas=ref}>
+                    </canvas>
+                  </div>
+                </div>
+              ) : <div></div>
+            }
           </TabView>
         </div>
 

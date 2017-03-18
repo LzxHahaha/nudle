@@ -72,7 +72,8 @@ export default class TabView extends React.Component {
             React.Children.map(children, (el, index) => {
               return React.cloneElement(el, {
                 key: `tab${index}`,
-                className: classNames([el.props.className, styles.tab])
+                className: classNames([el.props.className, styles.tab]),
+                style: { maxWidth: `${tabPresent}%` }
               });
             })
           }

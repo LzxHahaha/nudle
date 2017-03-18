@@ -113,36 +113,25 @@
 
 .inputImageView {
     position: relative;
-    display: flex;
-    flex-direction: row;
     transition: 0.5s;
-    margin: 0 5px 10px;
-}
-
-.inputImage {
-    height: 250px;
-    max-width: 100%;
-    margin: 0 auto;
+    margin-bottom: 10px;
 }
 
 .inputHistogramBox {
-    flex: 1;
     background-color: #E5E5E5;
     height: 250px;
     position: relative;
     padding: 0 10px;
 }
 
-@media screen and (max-width: 768px) {
-    .inputImageView {
-        flex-direction: column;
-    }
-}
-
 .histSelector {
     position: absolute;
     right: 20px;
     bottom: 15px;
+}
+
+.sourceImageContainer {
+    display: flex;
 }
 
 .searchInfo {
