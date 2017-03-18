@@ -1,6 +1,6 @@
 # coding=utf-8
 
-DEV = True
+DEV = False
 
 MONGO_DB = {
     'host': 'localhost',
