@@ -25,5 +25,5 @@
 
 .button:disabled {
     background-color: lightgray;
-    cursor: wait;
+    cursor: default;
 }

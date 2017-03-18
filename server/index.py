@@ -46,7 +46,7 @@ def get_all_libraries():
 def upload_search():
     library = request.form.get('library', 'voc2006')
     image_b64 = request.form.get('image', None)
-    size = request.form.get('size', 20)
+    size = int(request.form.get('size', 20))
 
     # base64 转码
     image = convert_from(image_b64)
@@ -68,7 +68,7 @@ def upload_search():
 def url_search():
     library = request.form.get('library', 'voc2006')
     url = request.form.get('url', None)
-    size = request.form.get('size', 20)
+    size = int(request.form.get('size', 20))
 
     req = urllib.request.Request(url)
     response = urllib.request.urlopen(req)

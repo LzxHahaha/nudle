@@ -239,12 +239,13 @@ export default class Home extends React.Component {
                     显示结果：{display.length}条
                   </div>
                   {
-                    display.map(el => {
+                    display.map((el, index) => {
                       return (
                         <ResponseImage
+                          key={`result${index}`}
                           src={`http://localhost:5000/static/lib_${this.searchLibrary}/${el.name}`}
                           className={styles.imagePreviewBox}
-                          info={`${el.distance}`}
+                          info={`[${index + 1}]\n${el.distance}`}
                         />
                       );
                     })
@@ -309,7 +310,7 @@ export default class Home extends React.Component {
           <Modal.Header>
             设置
           </Modal.Header>
-          <span className={styles.settingHeader}>结果数量 [1, 50]</span>
+          <span>结果数量 [1, 50]</span>
           <input
             className={styles.searchInput}
             value={size}
