@@ -116,6 +116,7 @@
     display: flex;
     flex-direction: row;
     transition: 0.5s;
+    margin: 0 5px 10px;
 }
 
 .inputImage {

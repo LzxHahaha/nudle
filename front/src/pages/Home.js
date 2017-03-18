@@ -227,37 +227,11 @@ export default class Home extends React.Component {
             )
           }
 
-          <TabView labels={['搜索结果', '输入图片']}
+          <TabView labels={['搜索结果', '图片详情']}
                    style={display.length === 0 ? {display: 'none'} : {}}>
             <div>
-            {
-              display.length > 0 && (
-                <div>
-                  <div className={styles.searchInfo}>
-                    搜索用时：{searchTime}秒<br/>
-                    搜索算法：Saliency-BoF<br/>
-                    显示结果：{display.length}条
-                  </div>
-                  {
-                    display.map((el, index) => {
-                      return (
-                        <ResponseImage
-                          key={`result${index}`}
-                          src={`http://localhost:5000/static/lib_${this.searchLibrary}/${el.name}`}
-                          className={styles.imagePreviewBox}
-                          info={`[${index + 1}]\n${el.distance}`}
-                        />
-                      );
-                    })
-                  }
-                </div>
-              )
-            }
-          </div>
-          <div>
-            {
-              sourceImage && (
-                <div>
+              {
+                sourceImage && (
                   <div className={styles.inputImageView}>
                     <img src={sourceImage} className={styles.inputImage} />
                     <div className={styles.inputHistogramBox} id="histContainer">
@@ -275,9 +249,36 @@ export default class Home extends React.Component {
                       )
                     }
                   </div>
-                </div>
-              )
-            }
+                )
+              }
+              {
+                display.length > 0 && (
+                  <div>
+                    <div className={styles.searchInfo}>
+                      搜索用时：{searchTime}秒<br/>
+                      搜索算法：Saliency-BoF<br/>
+                      显示结果：{display.length}条
+                    </div>
+                    {
+                      display.map((el, index) => {
+                        return (
+                          <ResponseImage
+                            key={`result${index}`}
+                            src={`http://localhost:5000/static/lib_${this.searchLibrary}/${el.name}`}
+                            className={styles.imagePreviewBox}
+                            info={`[${index + 1}]\n${el.distance}`}
+                          />
+                        );
+                      })
+                    }
+                  </div>
+                )
+              }
+          </div>
+          <div>
+            <p>
+              TODO: 显示前景和背景
+            </p>
           </div>
           </TabView>
         </div>
