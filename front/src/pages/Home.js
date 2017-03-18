@@ -29,7 +29,8 @@ export default class Home extends React.Component {
       display: [],
       libraries: [],
       chooseLibrary: null,
-      searchTime: 0
+      searchTime: 0,
+      size: 20
     };
 
     this.selectedImage = '';
@@ -59,14 +60,16 @@ export default class Home extends React.Component {
   async searchUrl() {
     return await Request.post(Request.URLs.searchUrl, {
       url: this.state.searchText,
-      library: this.state.chooseLibrary
+      library: this.state.chooseLibrary,
+      size: this.state.size
     });
   }
 
   async searchUpload() {
     return await Request.post(Request.URLs.searchUpload, {
       image: this.selectedImage,
-      library: this.state.chooseLibrary
+      library: this.state.chooseLibrary,
+      size: this.state.size
     });
   }
 
@@ -165,8 +168,23 @@ export default class Home extends React.Component {
     });
   };
 
+  onSizeTextChange = e => {
+    const value = parseInt(e.target.value);
+    let size = this.state.size;
+    if (0 < value && value <= 50) {
+      size = value;
+    }
+    else if (value > 50) {
+      size = 50;
+    }
+    else {
+      size = 1;
+    }
+    this.setState({ size });
+  };
+
   render() {
-    const { libraries, searching, display, searchText, sourceImage, searchTime } = this.state;
+    const { libraries, searching, display, searchText, sourceImage, searchTime, size } = this.state;
 
     return (
       <div className={styles.container}>
@@ -189,7 +207,7 @@ export default class Home extends React.Component {
                 onKeyDown={this.onSearchTextSubmit}
               />
             </div>
-            <a className={styles.imageButton} onClick={()=>this.modal.show()}>
+            <a className={styles.imageButton} onClick={()=>this.imagePickerModal.show()}>
               <FontAwesome name="cloud-upload" />
             </a>
             <Button
@@ -215,9 +233,11 @@ export default class Home extends React.Component {
             {
               display.length > 0 && (
                 <div>
-                  <p>
-                    搜索用时：{searchTime}秒
-                  </p>
+                  <div className={styles.searchInfo}>
+                    搜索用时：{searchTime}秒<br/>
+                    搜索算法：Saliency-BoF<br/>
+                    显示结果：{display.length}条
+                  </div>
                   {
                     display.map(el => {
                       return (
@@ -261,7 +281,11 @@ export default class Home extends React.Component {
           </TabView>
         </div>
 
-        <Modal ref={ref=>this.modal=ref}>
+        <div className={styles.settingButton} onClick={()=>this.settingModal.show()}>
+          <FontAwesome name="gear" />
+        </div>
+
+        <Modal ref={ref=>this.imagePickerModal=ref}>
           <Modal.Header>
             上传图片进行搜索
           </Modal.Header>
@@ -279,6 +303,19 @@ export default class Home extends React.Component {
               确定
             </Button>
           </Modal.Footer>
+        </Modal>
+
+        <Modal ref={ref=>this.settingModal=ref}>
+          <Modal.Header>
+            设置
+          </Modal.Header>
+          <span className={styles.settingHeader}>结果数量 [1, 50]</span>
+          <input
+            className={styles.searchInput}
+            value={size}
+            onChange={this.onSizeTextChange}
+          />
+          <hr style={{margin: 0}} />
         </Modal>
       </div>
     );

@@ -151,3 +151,31 @@
     right: 20px;
     bottom: 15px;
 }
+
+.searchInfo {
+    padding: 10px;
+    background-color: #E5E5E5;
+    margin: 0 5px 5px;
+}
+
+.settingButton {
+    position: fixed;
+    bottom: 30px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    border-radius: 20px;
+    border: none;
+    color: white;
+    background-color: #3B85F7;
+    -webkit-box-shadow: 0 3px 5px rgba(43, 43, 43, 0.6);
+    -moz-box-shadow: 0 3px 5px rgba(43, 43, 43, 0.6);
+    box-shadow: 0 3px 5px rgba(43, 43, 43, 0.6);
+    text-align: center;
+    padding: 4px;
+    font-size: 22px;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    cursor: pointer;
+}
