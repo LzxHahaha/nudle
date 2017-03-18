@@ -8,6 +8,14 @@ import classNames from 'classnames';
 import styles from './Button.css';
 
 export default class Button extends React.Component {
+  static propTypes = {
+    disabled: PropTypes.bool
+  };
+
+  static defaultProps = {
+    disabled: false
+  };
+
   constructor(props) {
     super(props);
 
@@ -18,7 +26,7 @@ export default class Button extends React.Component {
     const { href, children, className, ...other } = this.props;
 
     return (
-      <a href={href} {...this.props} className={classNames(styles.button, className)}>
+      <a href={href} {...other} className={classNames(styles.button, className)}>
         {children}
       </a>
     );
@@ -28,7 +36,10 @@ export default class Button extends React.Component {
     const { children, className, ...other } = this.props;
 
     return (
-      <button {...other} className={classNames(styles.button, className)}>
+      <button
+        {...other}
+        className={classNames([styles.button, className])}
+      >
         {children}
       </button>
     );

@@ -22,3 +22,8 @@
 .button:active {
     background-color: #405677;
 }
+
+.button:disabled {
+    background-color: lightgray;
+    cursor: wait;
+}

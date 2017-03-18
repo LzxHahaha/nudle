@@ -8,6 +8,7 @@ import styles from './Home.css';
 import Modal from '../components/modal';
 import Button from '../components/Button';
 import ResponseImage from '../components/ResponseImage';
+import TabView from '../components/TabView';
 
 import Request from '../utils/Request';
 
@@ -33,13 +34,16 @@ export default class Home extends React.Component {
 
     this.selectedImage = '';
     this.imageReader = new FileReader();
-    this.imageReader.onload =  e => this.selectedImage = e.target.result;
+    this.imageReader.onload =  e => {
+      this.selectedImage = e.target.result;
+      this.forceUpdate();
+    };
     this.searchLibrary = '';
     this.histograms = null;
     this.chart = null;
   }
 
-  async componentWillMount() {
+  async componentDidMount() {
     try {
       const { libraries } = await Request.get(Request.URLs.libraries);
       this.setState({
@@ -82,7 +86,6 @@ export default class Home extends React.Component {
 
   onImageChange = (e) => {
     const image = e.target.files[0];
-    this.setState({ image });
     this.imageReader.readAsDataURL(image);
   };
 
@@ -91,7 +94,6 @@ export default class Home extends React.Component {
       return null;
     }
 
-    this.waitChart();
     await this.setState({searching: true, display: []});
 
     let result = null;
@@ -163,19 +165,6 @@ export default class Home extends React.Component {
     });
   };
 
-  waitChart = () => {
-    if (this.histograms) {
-      this.histograms = null;
-    }
-    if (this.chart) {
-      this.chart.clear();
-      this.chart.setOption({
-        backgroundColor: '#E5E5E5'
-      });
-      this.chart.showLoading();
-    }
-  };
-
   render() {
     const { libraries, searching, display, searchText, sourceImage, searchTime } = this.state;
 
@@ -203,35 +192,14 @@ export default class Home extends React.Component {
             <a className={styles.imageButton} onClick={()=>this.modal.show()}>
               <FontAwesome name="cloud-upload" />
             </a>
-            <Button className={styles.searchButton} onClick={()=>this.onSearchPress(true)}>
+            <Button
+              className={styles.searchButton}
+              onClick={()=>this.onSearchPress(true)}
+              disabled={libraries.length === 0 || searching || !searchText}
+            >
               搜索
             </Button>
           </div>
-
-          {
-            sourceImage && (
-              <div>
-                <h3>输入图片信息</h3>
-                <div className={styles.inputImageView}>
-                  <img src={sourceImage} className={styles.inputImage} />
-                  <div className={styles.inputHistogramBox} id="histContainer">
-                    <p style={{textAlign: 'center'}}>生成中...</p>
-                  </div>
-                  {
-                    !!this.histograms && (
-                      <select onChange={this.onHistChange} className={styles.histSelector}>
-                        {
-                          HIST_NAMES.map(el => (
-                            <option>{el}</option>
-                          ))
-                        }
-                      </select>
-                    )
-                  }
-                </div>
-              </div>
-            )
-          }
 
           {
             searching && (
@@ -241,29 +209,56 @@ export default class Home extends React.Component {
             )
           }
 
-          {
-            display.length > 0 && (
-              <div>
-                <h3>
-                  搜索结果
-                </h3>
-                <p>
-                  用时：{searchTime}秒
-                </p>
-                {
-                  display.map(el => {
-                    return (
-                      <ResponseImage
-                        src={`http://localhost:5000/static/lib_${this.searchLibrary}/${el.name}`}
-                        className={styles.imagePreviewBox}
-                        info={`${el.distance}`}
-                      />
-                    );
-                  })
-                }
-              </div>
-            )
-          }
+          <TabView labels={['搜索结果', '输入图片']}
+                   style={display.length === 0 ? {display: 'none'} : {}}>
+            <div>
+            {
+              display.length > 0 && (
+                <div>
+                  <p>
+                    搜索用时：{searchTime}秒
+                  </p>
+                  {
+                    display.map(el => {
+                      return (
+                        <ResponseImage
+                          src={`http://localhost:5000/static/lib_${this.searchLibrary}/${el.name}`}
+                          className={styles.imagePreviewBox}
+                          info={`${el.distance}`}
+                        />
+                      );
+                    })
+                  }
+                </div>
+              )
+            }
+          </div>
+          <div>
+            {
+              sourceImage && (
+                <div>
+                  <div className={styles.inputImageView}>
+                    <img src={sourceImage} className={styles.inputImage} />
+                    <div className={styles.inputHistogramBox} id="histContainer">
+                      <p style={{textAlign: 'center'}}>生成中...</p>
+                    </div>
+                    {
+                      !!this.histograms && (
+                        <select onChange={this.onHistChange} className={styles.histSelector}>
+                          {
+                            HIST_NAMES.map(el => (
+                              <option>{el}</option>
+                            ))
+                          }
+                        </select>
+                      )
+                    }
+                  </div>
+                </div>
+              )
+            }
+          </div>
+          </TabView>
         </div>
 
         <Modal ref={ref=>this.modal=ref}>
@@ -276,7 +271,11 @@ export default class Home extends React.Component {
             onChange={this.onImageChange}
           />
           <Modal.Footer>
-            <Button onClick={()=>this.onSearchPress(false)} dismiss={true}>
+            <Button
+              onClick={()=>this.onSearchPress(false)}
+              dismiss={true}
+              disabled={libraries.length === 0 || searching || !this.selectedImage}
+            >
               确定
             </Button>
           </Modal.Footer>
