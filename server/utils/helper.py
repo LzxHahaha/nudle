@@ -45,6 +45,12 @@ def convert_from(base64_str):
         raise
 
 
+def convert_to(img, ext='png'):
+    ret, mask_buf = cv2.imencode('.' + ext, img)
+    b64_str = base64.b64encode(mask_buf).decode('ascii')
+    return 'data:image/%s;base64,%s' % (ext, b64_str)
+
+
 def error_handler(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):

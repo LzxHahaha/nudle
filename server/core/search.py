@@ -1,7 +1,7 @@
 # coding=utf-8
 import numpy as np
 
-from core.feature import get_histograms, HIST_NAMES, compare_hist
+from core.feature import SaliencyBoF, HIST_NAMES
 from exceptions import *
 from utils.mongo import get_db
 
@@ -21,7 +21,8 @@ def search(image, library, size=20):
     collection = 'images_' + library
     images = db[collection]
 
-    input_hist = get_histograms(image, voc)
+    sbf = SaliencyBoF(image)
+    sbf.get_histograms(voc)
 
     # 计算距离并排序
     lib_images = images.find({})
@@ -33,7 +34,7 @@ def search(image, library, size=20):
     distances = []
     for f in features:
         lib_feature = [np.array(x, np.float32) for x in f]
-        d = compare_hist(input_hist, lib_feature)
+        d = sbf.compare_hist(lib_feature)
         distances.append(d)
 
     sort = np.argsort(np.array(distances))
@@ -41,6 +42,6 @@ def search(image, library, size=20):
 
     histograms = {}
     for i in range(len(HIST_NAMES)):
-        histograms[HIST_NAMES[i]] = input_hist[i].tolist()
+        histograms[HIST_NAMES[i]] = sbf.features[i].tolist()
 
-    return result, histograms
+    return result, histograms, sbf.cut_mask

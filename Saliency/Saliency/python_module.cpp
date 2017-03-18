@@ -10,7 +10,7 @@ namespace pbcvt
 {
 	using namespace boost::python;
 
-	PyObject *rc_cut(PyObject *input)
+	PyObject *rc_mask(PyObject *input)
 	{
 		auto image = pbcvt::fromNDArrayToMat(input);
 		auto mask = SaliencyCut::Cut(image);
@@ -44,7 +44,7 @@ namespace pbcvt
 		to_python_converter<cv::Mat, pbcvt::matToNDArrayBoostConverter>();
 		pbcvt::matFromNDArrayBoostConverter();
 
-		def("rc_cut", rc_cut);
+		def("rc_mask", rc_mask);
 		def("rc_map", rc_map);
 	}
 }

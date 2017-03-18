@@ -1,4 +1,6 @@
 # coding=utf-8
+import base64
+
 import cv2
 from flask import Flask, request
 from flask import render_template
@@ -9,7 +11,7 @@ import urllib.request
 import numpy as np
 
 from core.search import search
-from utils.helper import convert_from, error_handler, to_jpg
+from utils.helper import convert_from, error_handler, to_jpg, convert_to
 from utils.json import success
 import config
 from utils.mongo import get_db
@@ -53,13 +55,16 @@ def upload_search():
 
     # 查找
     start_time = time.time()
-    result, histograms = search(image, library, size)
+    result, histograms, mask = search(image, library, size)
     search_time = time.time() - start_time
 
     return success({
         'list': result,
         'histograms': histograms,
-        'search_time': search_time
+        'search_time': search_time,
+        'rc_mask': convert_to(mask),
+        'height': image.shape[0],
+        'width': image.shape[1]
     })
 
 
@@ -83,13 +88,16 @@ def url_search():
         image = to_jpg(image)
 
     start_time = time.time()
-    result, histograms = search(image, library, size)
+    result, histograms, mask = search(image, library, size)
     search_time = time.time() - start_time
 
     return success({
         'list': result,
         'histograms': histograms,
-        'search_time': search_time
+        'search_time': search_time,
+        'rc_mask': convert_to(mask),
+        'height': image.shape[0],
+        'width': image.shape[1]
     })
 
 

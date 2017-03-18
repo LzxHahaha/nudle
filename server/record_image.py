@@ -9,7 +9,7 @@ from multiprocessing import Manager, Pool, cpu_count
 import utils.mongo as mongo
 from utils.format_print import datetime_print
 from utils.helper import to_jpg
-from core.feature import get_histograms
+from core.feature import SaliencyBoF
 
 
 def record(paths, lib_dict, lib_name):
@@ -20,8 +20,8 @@ def record(paths, lib_dict, lib_name):
     for (full_path, name) in paths:
         try:
             image = cv2.imread(full_path)
-            image = to_jpg(image)
-            histograms = get_histograms(image, lib_dict)
+            sbf = SaliencyBoF(to_jpg(image))
+            histograms = sbf.get_histograms(lib_dict)
             histograms = [i.tolist() for i in histograms]
             data.append({'name': name, 'feature': histograms})
         except Exception:
