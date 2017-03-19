@@ -68,7 +68,7 @@ $ python ./index.py
 1. 将`server/config.py`中的`DEV`设为False
 1. 启动服务器
     ```
-    $ mongodb                   # 启动MongoDB服务
-    $ python tornado.py <port>  # 端口默认为5000
-    $ nginx                     # 启动Nginx
+    $ # 启动MongoDB服务
+    $ pythonw tornado.pyw <port>  # 端口默认为5000
+    $ # 启动Nginx
     ```
