@@ -39,7 +39,7 @@ def convert_from(base64_str):
             image = cv2.imdecode(image_data, 1)
             if file_type == 'png':
                 image = to_jpg(image)
-            return image
+            return image, file_type
         raise UnknownImageError()
     except Exception:
         raise

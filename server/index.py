@@ -51,7 +51,7 @@ def upload_search():
     size = int(request.form.get('size', 20))
 
     # base64 转码
-    image = convert_from(image_b64)
+    image, image_type = convert_from(image_b64)
 
     # 查找
     start_time = time.time()
@@ -64,7 +64,8 @@ def upload_search():
         'search_time': search_time,
         'rc_mask': convert_to(mask),
         'height': image.shape[0],
-        'width': image.shape[1]
+        'width': image.shape[1],
+        'type': image_type
     })
 
 
@@ -97,7 +98,8 @@ def url_search():
         'search_time': search_time,
         'rc_mask': convert_to(mask),
         'height': image.shape[0],
-        'width': image.shape[1]
+        'width': image.shape[1],
+        'type': image_type
     })
 
 

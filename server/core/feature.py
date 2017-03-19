@@ -77,7 +77,7 @@ class SaliencyBoF:
     def compare_hist(self, other):
         distance = 0
         for i in [0, 1, 3, 4, 5]:
-            distance += cv2.compareHist(self.features[i], other[i], cv2.HISTCMP_CHISQR)
-        distance += 3 * cv2.compareHist(self.features[2], other[2], cv2.HISTCMP_CHISQR)
-        distance += 2 * cv2.compareHist(self.features[6], other[6], cv2.HISTCMP_CHISQR)
+            distance += cv2.compareHist(self.features[i], other[i], cv2.HISTCMP_CHISQR_ALT)
+        distance += 3 * cv2.compareHist(self.features[2], other[2], cv2.HISTCMP_CHISQR_ALT)
+        distance += 2 * cv2.compareHist(self.features[6], other[6], cv2.HISTCMP_CHISQR_ALT)
         return distance

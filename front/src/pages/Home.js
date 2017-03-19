@@ -10,7 +10,7 @@ import Button from '../components/Button';
 import ResponseImage from '../components/ResponseImage';
 import TabView from '../components/TabView';
 
-import Request from '../utils/Request';
+import Request, { HOST } from '../utils/Request';
 
 const HIST_NAMES = [
   'foreground-h', 'foreground-s', 'foreground-lbp', 'sift-statistics',
@@ -43,6 +43,7 @@ export default class Home extends React.Component {
 
     this.histograms = null;
     this.chart = null;
+    this.imageData = {};
   }
 
   async componentDidMount() {
@@ -114,17 +115,23 @@ export default class Home extends React.Component {
 
       this.setState({ display: result.list, searchTime: result.search_time });
 
+      // 更新图片信息
+      const { type, height, width } = result;
+      this.imageData = { type, height, width };
+
       // 更新直方图
       this.histograms = result.histograms;
       this.updateChart(HIST_NAMES[0]);
 
       // 绘制裁剪图像
-      this.updateCutImage(result.rc_mask, result.height, result.width);
+      this.updateCutImage(result.rc_mask, height, width);
     }
     catch (err) {
       alert(err.message);
       await this.setState({ sourceImage: '' });
       this.searchLibrary = '';
+      this.histograms = null;
+      this.imageData = {};
     }
     finally {
       this.setState({ searching: false });
@@ -303,7 +310,7 @@ export default class Home extends React.Component {
                         return (
                           <ResponseImage
                             key={`result${index}`}
-                            src={`http://localhost:5000/static/lib_${this.searchLibrary}/${el.name}`}
+                            src={`${HOST}static/lib_${this.searchLibrary}/${el.name}`}
                             className={styles.imagePreviewBox}
                             info={`[${index + 1}]\n${el.distance}`}
                           />
@@ -317,6 +324,10 @@ export default class Home extends React.Component {
             {
               !!sourceImage ? (
                 <div>
+                  <div className={styles.searchInfo}>
+                    图像大小：{this.imageData.height}×{this.imageData.width}px<br/>
+                    图像类型：{this.imageData.type}
+                  </div>
                   <div className={styles.inputImageView}>
                     <div className={styles.inputHistogramBox} id="histContainer">
                       <p style={{textAlign: 'center'}}>生成中...</p>
