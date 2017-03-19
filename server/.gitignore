@@ -1,2 +1,5 @@
 .idea
 *.pyc
+static/lib_*/
+static/bundle.js
+__pycache__/
