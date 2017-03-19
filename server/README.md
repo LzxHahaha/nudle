@@ -2,6 +2,7 @@
 
 * `Saliency`项目完成`saliency_cut.pyd`的编译以及配置
 * 前端项目完成`bundle.js`的打包
+* 完成Nginx以及MongoDB的配置
 
 ## 运行
 
@@ -51,24 +52,10 @@ $ python ./index.py
 
 #### 生产环境
 
-1.  使用pip安装`tornado`和`pycurl`
-1.  在Nginx中添加配置
+2.  将`server/config.py`中的`DEV`设为`False`
+3.  启动服务器
     ```
-        server {
-            listen 80;  # 可修改成其他端口
-            server_name cbir;  # 通常设为域名
-            charset utf-8;
-            location / {
-                proxy_pass http://localhost:5000;  # 5000为Python监听的端口，可修改为其他端口
-                proxy_set_header X-Real-IP $remote_addr;
-                proxy_pass_header Set-Cookie;
-            }
-        }
-    ```
-1. 将`server/config.py`中的`DEV`设为False
-1. 启动服务器
-    ```
-    $ # 启动MongoDB服务
-    $ pythonw tornado.pyw <port>  # 端口默认为5000
-    $ # 启动Nginx
+    $ net start MongoDB             # 启动MongoDB服务
+    $ pythonw tornado.pyw <port>    # 端口默认为5000
+    $ nginx                         # 启动Nginx
     ```
