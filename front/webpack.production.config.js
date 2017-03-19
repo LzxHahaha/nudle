@@ -8,6 +8,7 @@ var webpack = require('webpack');
 module.exports = {
   devtool: false,
   entry: [
+    'whatwg-fetch',
     path.resolve(__dirname, './index.js')
   ],
   output: {
