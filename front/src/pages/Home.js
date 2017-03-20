@@ -40,6 +40,7 @@ export default class Home extends React.Component {
       this.forceUpdate();
     };
     this.searchLibrary = '';
+    this.currentHistogrom = HIST_NAMES[0];
 
     this.histograms = null;
     this.chart = null;
@@ -113,18 +114,18 @@ export default class Home extends React.Component {
         result = await this.searchUpload();
       }
 
-      this.setState({ display: result.list, searchTime: result.search_time });
+      this.setState({ display: result.list, searchTime: result.search_time }, () => {
+        // 更新图片信息
+        const { type, height, width } = result;
+        this.imageData = { type, height, width };
 
-      // 更新图片信息
-      const { type, height, width } = result;
-      this.imageData = { type, height, width };
+        // 更新直方图
+        this.histograms = result.histograms;
+        this.updateChart(this.currentHistogrom);
 
-      // 更新直方图
-      this.histograms = result.histograms;
-      this.updateChart(HIST_NAMES[0]);
-
-      // 绘制裁剪图像
-      this.updateCutImage(result.rc_mask, height, width);
+        // 绘制裁剪图像
+        this.updateCutImage(result.rc_mask, height, width);
+      });
     }
     catch (err) {
       alert(err.message);
@@ -140,6 +141,7 @@ export default class Home extends React.Component {
   };
 
   onHistChange = (e) => {
+    this.currentHistogrom = e.target.value;
     this.updateChart(e.target.value);
   };
 
