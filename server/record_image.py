@@ -9,7 +9,7 @@ from multiprocessing import Manager, Pool, cpu_count
 import utils.mongo as mongo
 from utils.format_print import datetime_print
 from utils.helper import to_jpg
-from core.feature import SaliencyBoF
+from core.SaliencyaBoF import SaliencyBoF
 
 
 def record(paths, lib_dict, lib_name):

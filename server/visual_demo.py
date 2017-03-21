@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from skimage.feature import local_binary_pattern
 
-from core.feature import SaliencyBoF, HIST_NAMES
+from core.SaliencyaBoF import SaliencyBoF, HIST_NAMES
 from core.saliency_rc_cut import cut
 from core.sift import sift
 from exceptions import *

@@ -77,7 +77,12 @@ class SaliencyBoF:
     def compare_hist(self, other):
         distance = 0
         for i in [0, 1, 3, 4, 5]:
-            distance += cv2.compareHist(self.features[i], other[i], cv2.HISTCMP_CHISQR_ALT)
-        distance += 3 * cv2.compareHist(self.features[2], other[2], cv2.HISTCMP_CHISQR_ALT)
-        distance += 2 * cv2.compareHist(self.features[6], other[6], cv2.HISTCMP_CHISQR_ALT)
+            distance += chi_square(self.features[i], other[i])
+        distance += 3 * chi_square(self.features[2], other[2])
+        distance += 2 * chi_square(self.features[6], other[6])
         return distance
+
+
+def chi_square(h1, h2):
+    result = cv2.compareHist(h1, h2, cv2.HISTCMP_CHISQR_ALT) / 2
+    return (result - np.mean(h1)) / np.std(h1)

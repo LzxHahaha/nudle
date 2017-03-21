@@ -1,7 +1,7 @@
 # coding=utf-8
 import numpy as np
 
-from core.feature import SaliencyBoF, HIST_NAMES
+from core.SaliencyaBoF import SaliencyBoF, HIST_NAMES
 from exceptions import *
 from utils.mongo import get_db
 
