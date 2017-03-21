@@ -25,20 +25,16 @@ def search(image, library, size=20):
     sbf.get_histograms(voc)
 
     # 计算距离并排序
-    lib_images = images.find({})
+    lib_images = images.find({}, {'name': 1, 'feature': 1, '_id': 0})
     images_names = []
-    features = []
-    for i in lib_images:
-        features.append(i['feature'])
-        images_names.append(i['name'])
     distances = []
-    for f in features:
-        lib_feature = [np.array(x, np.float32) for x in f]
-        d = sbf.compare_hist(lib_feature)
+    for i in lib_images:
+        images_names.append(i['name'])
+        d = sbf.compare_hist([np.array(h, np.float32) for h in i['feature']])
         distances.append(d)
 
-    sort = np.argsort(np.array(distances))
-    result = [{'name': images_names[sort[i]], 'distance': distances[sort[i]]} for i in range(size)]
+    sort = np.argsort(np.array(distances))[:size]
+    result = [{'name': images_names[i], 'distance': distances[i]} for i in sort]
 
     histograms = {}
     for i in range(len(HIST_NAMES)):

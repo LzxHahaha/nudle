@@ -11,8 +11,9 @@ import urllib.request
 import numpy as np
 
 from core.search import search
+from utils import mongo
 from utils.helper import convert_from, error_handler, to_jpg, convert_to
-from utils.json import success
+from utils.json import success, failed
 import config
 from utils.mongo import get_db
 from exceptions import *
@@ -36,6 +37,7 @@ def get_all_libraries():
     db = get_db()
     names = db.collection_names()
     res = []
+    # 找出所有图片库名并返回
     for name in names:
         lib_name = re.findall(r"images_(.+)", name)
         if len(lib_name) == 1:
@@ -76,12 +78,15 @@ def url_search():
     url = request.form.get('url', None)
     size = int(request.form.get('size', 20))
 
+    # 获取网络图片
     req = urllib.request.Request(url)
     response = urllib.request.urlopen(req)
+    # 判断类型是否为图片
     content_type = response.getheader('Content-Type')
     image_type = re.match(r"^image/(\w+)$", content_type)
     if image_type is None:
         raise UnknownImageError(content_type)
+    # 判断是否需要转换为JPG
     image_type = image_type.group(1).lower()
     image_bytes = response.read()
     image = cv2.imdecode(np.frombuffer(image_bytes, np.uint8), 1)
@@ -103,7 +108,23 @@ def url_search():
     })
 
 
+@app.route('/api/image/<lib>/<name>', methods=['GET'])
+@error_handler
+def image_detail(lib, name):
+    if name is None or lib is None:
+        return failed(400, 'Wrong parameter.')
+    doc = mongo.get_db()['images_' + lib]
+    if doc is None:
+        return failed(404, 'Unknown library.')
+    data = doc.find({'name': name}, {'_id': 0})
+    if data.count() < 1:
+        return failed(404, 'Unknown image.')
+    result = data[0]
+
+    return success(result)
+
+
 if __name__ == '__main__':
     if not config.DEV:
         print('WARNING: Now is dev mode, do NOT use it in the production environment.')
-    app.run()
+    app.run(port=5001)
