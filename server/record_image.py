@@ -69,6 +69,12 @@ if __name__ == '__main__':
         pool.apply_async(record, args=(arg, voc, lib))
     pool.close()
     pool.join()
+    datetime_print('Record done. Use %fs.' % (time.time() - start))
 
-    datetime_print('Done. Use %fs.' % (time.time() - start))
+    datetime_print('Creating index...')
+    doc = mongo.get_db()['images_' + lib]
+    doc.create_index('name', unique=True, background=True)
+
+    datetime_print('All done.')
+
 
