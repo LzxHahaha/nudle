@@ -4,9 +4,9 @@
 
 import React from 'react';
 
-import styles from './ResponseImage.css';
+import styles from './ResultImage.css';
 
-export default class ResponseImage extends React.Component {
+export default class ResultImage extends React.Component {
   constructor(props) {
     super(props);
 

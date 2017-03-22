@@ -5,6 +5,7 @@ import os
 import time
 import traceback
 from multiprocessing import Manager, Pool, cpu_count
+import sys
 from PIL import Image
 
 import utils.mongo as mongo
@@ -53,8 +54,18 @@ if __name__ == '__main__':
     datetime_print('Connecting to database...')
     # 连接数据库
     db = mongo.get_db()
+    collection = mongo.get_db()['images_' + lib]
+    if collection is not None:
+        while 1:
+            confirm = input('Already recode library [%s], sure you want to continue? [y/n]: ' % lib)
+            if confirm.lower() == 'y':
+                break
+            elif confirm.lower() == 'n':
+                sys.exit()
+
     dictionaries = db.dictionaries
     dictionary = dictionaries.find_one({'library': lib})
+
     voc = dictionary['dictionary']
     voc = process_manager.list(voc)
 
@@ -80,7 +91,6 @@ if __name__ == '__main__':
     datetime_print('Record done. Use %fs.' % (time.time() - start))
 
     datetime_print('Creating index...')
-    collection = mongo.get_db()['images_' + lib]
     collection.create_index('name', unique=True, background=True)
 
     datetime_print('All done.')

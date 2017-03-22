@@ -2,15 +2,17 @@ import React from 'react';
 import FontAwesome from 'react-fontawesome';
 import classNames from 'classnames';
 import echarts from 'echarts';
+import { Link } from 'react-router';
 
 import styles from './Home.css';
 
 import Modal from '../components/modal';
 import Button from '../components/Button';
-import ResponseImage from '../components/ResponseImage';
+import ResultImage from '../components/ResultImage';
 import TabView from '../components/TabView';
 
-import Request, { HOST } from '../utils/Request';
+import { HOST } from '../utils/Request';
+import { searchUrl, searchUpload, getLibraries } from '../logic/image';
 
 const HIST_NAMES = [
   'foreground-h', 'foreground-s', 'foreground-lbp', 'sift-statistics',
@@ -49,7 +51,7 @@ export default class Home extends React.Component {
 
   async componentDidMount() {
     try {
-      const { libraries } = await Request.get(Request.URLs.libraries);
+      const libraries = await getLibraries(true);
       this.setState({
         libraries,
         chooseLibrary: libraries[0]
@@ -58,22 +60,6 @@ export default class Home extends React.Component {
     catch (err) {
       alert(err.message);
     }
-  }
-
-  async searchUrl() {
-    return await Request.post(Request.URLs.searchUrl, {
-      url: this.state.searchText,
-      library: this.state.chooseLibrary,
-      size: this.state.size
-    });
-  }
-
-  async searchUpload() {
-    return await Request.post(Request.URLs.searchUpload, {
-      image: this.selectedImage,
-      library: this.state.chooseLibrary,
-      size: this.state.size
-    });
   }
 
   onLibraryChange = e => {
@@ -96,22 +82,24 @@ export default class Home extends React.Component {
   };
 
   onSearchPress = async (isUrl) => {
-    if (!this.state.chooseLibrary) {
+    const { chooseLibrary, searchText, size } = this.state;
+
+    if (!chooseLibrary) {
       return null;
     }
 
-    this.searchLibrary = this.state.chooseLibrary;
+    this.searchLibrary = chooseLibrary;
     await this.setState({searching: true, display: []});
 
     let result = null;
     try {
       if (isUrl) {
-        this.setState({ sourceImage: this.state.searchText });
-        result = await this.searchUrl();
+        this.setState({ sourceImage: searchText });
+        result = await searchUrl(searchText, chooseLibrary, size);
       }
       else {
         this.setState({ sourceImage: this.selectedImage });
-        result = await this.searchUpload();
+        result = await searchUpload(this.selectedImage, chooseLibrary, size);
       }
 
       this.setState({ display: result.list, searchTime: result.search_time }, () => {
@@ -310,12 +298,15 @@ export default class Home extends React.Component {
                     {
                       display.map((el, index) => {
                         return (
-                          <ResponseImage
-                            key={`result${index}`}
-                            src={`${HOST}static/lib_${this.searchLibrary}/${el.name}`}
-                            className={styles.imagePreviewBox}
-                            info={`[${index + 1}]\n${el.distance}`}
-                          />
+                          <Link target="_blank" to={`/detail?lib=${this.searchLibrary}&name=${el.name}`}>
+                            <ResultImage
+                              key={`result${index}`}
+                              src={`${HOST}static/lib_${this.searchLibrary}/${el.name}`}
+                              className={styles.imagePreviewBox}
+                              info={`[${index + 1}]\n${el.distance}`}
+                              name={el.name}
+                            />
+                          </Link>
                         );
                       })
                     }
@@ -332,7 +323,7 @@ export default class Home extends React.Component {
                   </div>
                   <div className={styles.inputImageView}>
                     <div className={styles.inputHistogramBox} id="histContainer">
-                      <p style={{textAlign: 'center'}}>生成中...</p>
+                      <p style={{textAlign: 'center', margin: 0}}>生成中...</p>
                     </div>
                     {
                       !!this.histograms && (
