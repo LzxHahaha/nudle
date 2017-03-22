@@ -64,5 +64,6 @@ export default class Request {
 Request.URLs = {
   libraries: 'api/libraries',
   searchUpload: 'api/search/upload',
-  searchUrl: 'api/search/url'
+  searchUrl: 'api/search/url',
+  detail: 'api/image'
 };

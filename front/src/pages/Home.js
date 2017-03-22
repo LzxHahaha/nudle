@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import echarts from 'echarts';
 import { Link } from 'react-router';
 
+import globalStyles from './site.css';
 import styles from './Home.css';
 
 import Modal from '../components/modal';
@@ -12,12 +13,7 @@ import ResultImage from '../components/ResultImage';
 import TabView from '../components/TabView';
 
 import { HOST } from '../utils/Request';
-import { searchUrl, searchUpload, getLibraries } from '../logic/image';
-
-const HIST_NAMES = [
-  'foreground-h', 'foreground-s', 'foreground-lbp', 'sift-statistics',
-  'background-h', 'background-s', 'background-lbp'
-];
+import { searchUrl, searchUpload, getLibraries, HIST_NAMES } from '../logic/image';
 
 export default class Home extends React.Component {
   constructor(props) {
@@ -236,8 +232,8 @@ export default class Home extends React.Component {
     const { libraries, searching, display, searchText, sourceImage, searchTime, size } = this.state;
 
     return (
-      <div className={styles.container}>
-        <div className={styles.row}>
+      <div className={globalStyles.container}>
+        <div className={globalStyles.row}>
           <div className={classNames(styles.logo, (searching || display.length > 0) && styles.logoFold)}>
             <img src={require('../image/nudle.png')} height="80" />
           </div>
@@ -281,7 +277,7 @@ export default class Home extends React.Component {
           }
         </div>
 
-        <div className={styles.row}>
+        <div className={globalStyles.row}>
           <TabView
             labels={['搜索结果', '图片详情']}
             style={display.length === 0 ? {display: 'none'} : {}}

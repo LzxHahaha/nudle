@@ -4,23 +4,19 @@
 
 import Request from '../utils/Request';
 
-let inputFeature = null;
 let libraries = null;
 
-export function getInputFeature() {
-  return inputFeature;
-}
+export const HIST_NAMES = [
+  'foreground-h', 'foreground-s', 'foreground-lbp', 'sift-statistics',
+  'background-h', 'background-s', 'background-lbp'
+];
 
 export async function searchUrl(url, library, size) {
-  const result = await Request.post(Request.URLs.searchUrl, { url, library, size });
-  inputFeature = result.histograms;
-  return result;
+  return await Request.post(Request.URLs.searchUrl, { url, library, size });
 }
 
 export async function searchUpload(image, library, size) {
-  const result = await Request.post(Request.URLs.searchUpload, { image, library, size });
-  inputFeature = result.histograms;
-  return result;
+  return await Request.post(Request.URLs.searchUpload, { image, library, size });
 }
 
 export async function getLibraries(update = false) {
@@ -29,4 +25,9 @@ export async function getLibraries(update = false) {
     libraries = data.libraries;
   }
   return libraries;
+}
+
+export async function getImageDetail(lib, name) {
+  const url = `${Request.URLs.detail}/${lib}/${name}`;
+  return await Request.get(url);
 }

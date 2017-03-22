@@ -1,0 +1,64 @@
+.card {
+    width: 95%;
+    margin: 30px auto;
+    border-radius: 3px;
+    -webkit-box-shadow: 0 3px 8px 0 rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.08);
+    -moz-box-shadow: 0 3px 8px 0 rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.08);
+    box-shadow: 0 3px 8px 0 rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.08);
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    padding: 20px;
+}
+
+.cardHeader {
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.cardHeaderText {
+    display: inline-block;
+    background-color: #3B85F7;
+    padding: 5px 10px;
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+    margin-left: 15px;
+}
+
+.imageView {
+    display: flex;
+    align-items: flex-start;
+}
+
+.imageContainer {
+    display: inline-block;
+    max-width: 49%;
+    min-height: 250px;
+    position: relative;
+}
+
+.image {
+    max-height: 300px;
+    max-width: 90%;
+    z-index: 2;
+}
+
+.info {
+    display: inline-block;
+    flex: 1;
+}
+
+.infoTitle {
+    background-color: #3B85F7;
+    padding: 5px 10px;
+    font-size: 16px;
+    color: white;
+    margin-right: 10px;
+    margin-bottom: 5px;
+}
+
+.chartContainer {
+    height: 250px;
+}
