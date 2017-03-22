@@ -5,6 +5,7 @@ import os
 import time
 import traceback
 from multiprocessing import Manager, Pool, cpu_count
+from PIL import Image
 
 import utils.mongo as mongo
 from utils.format_print import datetime_print
@@ -20,10 +21,17 @@ def record(paths, lib_dict, lib_name):
     for (full_path, name) in paths:
         try:
             image = cv2.imread(full_path)
-            sbf = SaliencyBoF(to_jpg(image))
+            tmp = Image.open(full_path)
+            if tmp.format != 'JPEG':
+                image = to_jpg(image)
+            sbf = SaliencyBoF(image)
             histograms = sbf.get_histograms(lib_dict)
-            histograms = [i.tolist() for i in histograms]
-            data.append({'name': name, 'feature': histograms})
+            data.append({
+                'name': name,
+                'feature': [i.tolist() for i in histograms],
+                'height': image.shape[0],
+                'width': image.shape[1]
+            })
         except Exception:
             print('(%s)\t[%s]\n%s' % (os.getpid(), full_path, traceback.format_exc()))
     doc.insert_many(data)
@@ -72,8 +80,8 @@ if __name__ == '__main__':
     datetime_print('Record done. Use %fs.' % (time.time() - start))
 
     datetime_print('Creating index...')
-    doc = mongo.get_db()['images_' + lib]
-    doc.create_index('name', unique=True, background=True)
+    collection = mongo.get_db()['images_' + lib]
+    collection.create_index('name', unique=True, background=True)
 
     datetime_print('All done.')
 
