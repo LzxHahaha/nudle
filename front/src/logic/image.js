@@ -6,17 +6,31 @@ import Request from '../utils/Request';
 
 let libraries = null;
 
+const INPUT_FEATURE_KEY = 'inputFeature';
+
 export const HIST_NAMES = [
   'foreground-h', 'foreground-s', 'foreground-lbp', 'sift-statistics',
   'background-h', 'background-s', 'background-lbp'
 ];
 
+function saveInputFeature(feature) {
+  sessionStorage.setItem(INPUT_FEATURE_KEY, JSON.stringify(feature));
+}
+
+export function getInputFeature() {
+  return JSON.parse(sessionStorage.getItem(INPUT_FEATURE_KEY));
+}
+
 export async function searchUrl(url, library, size) {
-  return await Request.post(Request.URLs.searchUrl, { url, library, size });
+  const result = await Request.post(Request.URLs.searchUrl, { url, library, size });
+  saveInputFeature(result.histograms);
+  return result;
 }
 
 export async function searchUpload(image, library, size) {
-  return await Request.post(Request.URLs.searchUpload, { image, library, size });
+  const result = await Request.post(Request.URLs.searchUpload, { image, library, size });
+  saveInputFeature(result.histograms);
+  return result;
 }
 
 export async function getLibraries(update = false) {
