@@ -10,7 +10,7 @@ import re
 import urllib.request
 import numpy as np
 
-from core.search import search
+from core.SaliencyaBoF import SaliencyBoF
 from utils import mongo
 from utils.helper import convert_from, error_handler, to_jpg, convert_to
 from utils.json import success, failed
@@ -57,7 +57,7 @@ def upload_search():
 
     # 查找
     start_time = time.time()
-    result, histograms, mask = search(image, library, size)
+    result, histograms, mask = SaliencyBoF.search(image, library, size)
     search_time = time.time() - start_time
 
     return success({
@@ -94,7 +94,7 @@ def url_search():
         image = to_jpg(image)
 
     start_time = time.time()
-    result, histograms, mask = search(image, library, size)
+    result, histograms, mask = SaliencyBoF.search(image, library, size)
     search_time = time.time() - start_time
 
     return success({
