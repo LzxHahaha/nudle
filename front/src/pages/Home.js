@@ -158,8 +158,7 @@ export default class Home extends React.Component {
     this.chart.setOption({
       title: {
         text: histName,
-        left: 'center',
-        padding: [20, 0, 5, 0]
+        padding: [15, 0, 5, 5]
       },
       xAxis: {
         data: []
@@ -169,6 +168,7 @@ export default class Home extends React.Component {
       },
       animationDurationUpdate: 1000,
       backgroundColor: '#E5E5E5',
+      dataZoom: [{ type: 'slider' }],
       series: [{
         name: histName,
         type: 'bar',

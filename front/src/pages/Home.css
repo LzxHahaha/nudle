@@ -104,8 +104,8 @@
 
 .histSelector {
     position: absolute;
+    top: 15px;
     right: 20px;
-    bottom: 15px;
 }
 
 .sourceImageContainer {
