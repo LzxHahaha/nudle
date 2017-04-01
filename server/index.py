@@ -1,6 +1,4 @@
 # coding=utf-8
-import base64
-
 import cv2
 from flask import Flask, request
 from flask import render_template
@@ -27,8 +25,13 @@ if config.DEV:
 
 
 @app.route('/')
-def hello_world():
-    return render_template('index.html')
+def index_page():
+    return render_template('index.html', title="Nudle Search")
+
+
+@app.route('/detail')
+def detail_page():
+    return render_template('index.html', title="Detail - Nudle")
 
 
 @app.route('/api/libraries', methods=['GET'])
