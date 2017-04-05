@@ -79,7 +79,16 @@ mongod --dbpath <MongoDB data path> --logpath <MongoDB data path>\mongo.log --lo
 ```
 其中的`<MongoDB data path>`为自定的路径，用于存放数据以及log
 
-### Nginx
+### Node.js
+
+1. 下载并安装[Node.js 最新版本](https://nodejs.org/en/download/)
+2. 执行以下命令
+```
+$ npm config set registry https://registry.npm.taobao.org 
+$ npm i -g babel-core babel-cli yarn webpack webpack-dev-server
+```
+
+### Nginx（可选）
 
 1. 下载并安装[Nginx](http://nginx.org/en/download.html)
 1. 打开`<Nginx path>/conf/nginx.conf`，修改配置
@@ -107,13 +116,4 @@ server {
         proxy_pass_header Set-Cookie;
     }
 }
-```
-
-### Node.js
-
-1. 下载并安装[Node.js 最新版本](https://nodejs.org/en/download/)
-2. 执行以下命令
-```
-$ npm config set registry https://registry.npm.taobao.org 
-$ npm i -g babel-core babel-cli yarn webpack webpack-dev-server
 ```

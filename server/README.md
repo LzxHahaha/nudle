@@ -2,7 +2,8 @@
 
 * `Saliency`项目完成`saliency_cut.pyd`的编译以及配置
 * 前端项目完成`bundle.js`的打包
-* 完成Nginx以及MongoDB的配置
+* 完成MongoDB的配置
+* 完成Nginx的配置（可选）
 
 ## 运行
 
@@ -52,10 +53,26 @@ $ python ./index.py
 
 #### 生产环境
 
-2.  将`server/config.py`中的`DEV`设为`False`
-3.  启动服务器
-    ```
-    $ net start MongoDB             # 启动MongoDB服务
-    $ pythonw tornado.pyw <port>    # 端口默认为5000
-    $ nginx                         # 启动Nginx
-    ```
+运行生产环节之前，先将`server/config.py`中的`DEV`设为`False`，关闭调试模式
+
+
+
+> 使用Nginx做代理
+
+```
+$ net start MongoDB             # 启动MongoDB服务
+$ pythonw tornado.pyw <port>    # 端口默认为5000
+$ nginx                         # 启动Nginx
+```
+
+
+
+> 未安装Nginx
+
+在`server`下执行
+
+`$ pythonw tornado_server.pyw 80`
+
+，之后直接访问[localhost](localhost:80)即可
+
+只是这样会将图片请求也交给Python处理，可能会出现一些意料之外的情况
