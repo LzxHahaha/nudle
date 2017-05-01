@@ -31,12 +31,12 @@ class SaliencyBoF:
     @staticmethod
     def base_hist(image, useless_area):
         hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-        gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        v_image = hsv_image[:, :, 2]
         # H/S Histogram
         hist_h = cv2.calcHist([hsv_image], [0], None, [64], [0, 180])
         hist_s = cv2.calcHist([hsv_image], [1], None, [16], [0, 256])
         # LBP
-        lbp_image = local_binary_pattern(gray_image, 8 * 3, 3)
+        lbp_image = local_binary_pattern(v_image, 8 * 3, 3)
         lbp_image = np.uint8(lbp_image)
         hist_lbp = cv2.calcHist([lbp_image], [0], None, [256], [0, 256])
         # 扣除掉没用的部分
