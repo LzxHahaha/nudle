@@ -15,8 +15,8 @@ public:
 	SaliencyCut(CMat &img3f);
 	~SaliencyCut();
 
-	static Mat Cut(string path);
-	static Mat Cut(Mat img);
+	static Mat Cut(string path, double sigmaDist = 0.4, double segK = 50, int segMinSize = 200, double segSigma = 0.5);
+	static Mat Cut(Mat img, double sigmaDist = 0.4, double segK = 50, int segMinSize = 200, double segSigma = 0.5);
 	static Mat CutObjs(CMat &img3f, CMat &sal1f, float t1 = 0.2f, float t2 = 0.9f,
 		CMat &borderMask = Mat(), int wkSize = 20);
 

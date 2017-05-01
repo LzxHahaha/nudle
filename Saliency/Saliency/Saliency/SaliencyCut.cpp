@@ -65,19 +65,17 @@ SaliencyCut::~SaliencyCut()
 		delete _graph;
 }
 
-Mat SaliencyCut::Cut(string path)
+Mat SaliencyCut::Cut(string path, double sigmaDist, double segK, int segMinSize, double segSigma)
 {
 	Mat img = imread(path);
 	CV_Assert_(img.data != NULL, ("Can't load image %s\n", _S(path)));
-	return SaliencyCut::Cut(img);
+	return SaliencyCut::Cut(img, sigmaDist, segK, segMinSize, segSigma);
 }
 
-Mat SaliencyCut::Cut(Mat img)
+Mat SaliencyCut::Cut(Mat img, double sigmaDist, double segK, int segMinSize, double segSigma)
 {
 	img.convertTo(img, CV_32FC3, 1.0 / 255);
-	Mat sal = SaliencyRC::GetRC(img);
-	//imshow("map", sal);
-	//waitKey(1);
+	Mat sal = SaliencyRC::GetRC(img, sigmaDist, segK, segMinSize, segSigma);
 
 	Mat cutMat;
 	float t = 0.9f;

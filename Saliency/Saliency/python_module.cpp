@@ -10,10 +10,10 @@ namespace pbcvt
 {
 	using namespace boost::python;
 
-	PyObject *rc_mask(PyObject *input)
+	PyObject *rc_mask(PyObject *input, double sigmaDist = 0.4, double segK = 50, int segMinSize = 200, double segSigma = 0.5)
 	{
 		auto image = pbcvt::fromNDArrayToMat(input);
-		auto mask = SaliencyCut::Cut(image);
+		auto mask = SaliencyCut::Cut(image, sigmaDist, segK, segMinSize, segSigma);
 		return pbcvt::fromMatToNDArray(mask);
 	}
 
@@ -37,6 +37,7 @@ namespace pbcvt
 		return NUMPY_IMPORT_ARRAY_RETVAL;
 	}
 
+	BOOST_PYTHON_FUNCTION_OVERLOADS(rc_mask_overloads, rc_mask, 1, 5)
 	BOOST_PYTHON_MODULE(saliency_cut)
 	{
 		init_ar();
@@ -44,7 +45,7 @@ namespace pbcvt
 		to_python_converter<cv::Mat, pbcvt::matToNDArrayBoostConverter>();
 		pbcvt::matFromNDArrayBoostConverter();
 
-		def("rc_mask", rc_mask);
+		def("rc_mask", rc_mask, rc_mask_overloads());
 		def("rc_map", rc_map);
 	}
 }
