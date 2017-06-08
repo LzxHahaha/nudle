@@ -35,7 +35,7 @@ def read_images(lib_name, train_step):
     train_segment = train_count // cpu_count()
     args = [train_image[x:x + train_segment] for x in range(0, train_count, train_segment)]
 
-    # 开多线程
+    # 开多进程
     pool = Pool()
     result = pool.map(get_features, args)
     pool.close()

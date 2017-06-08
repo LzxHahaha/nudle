@@ -60,9 +60,9 @@ $ python ./index.py
 > 使用Nginx做代理
 
 ```
-$ net start MongoDB             # 启动MongoDB服务
-$ pythonw tornado.pyw <port>    # 端口默认为5000
-$ nginx                         # 启动Nginx
+$ net start MongoDB                     # 启动MongoDB服务
+$ pythonw ./tornado_server.pyw <port>   # 端口默认为5000
+$ nginx                                 # 启动Nginx
 ```
 
 
